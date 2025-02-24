@@ -13,8 +13,6 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            LevelSeeder::class,
-            UserSeeder::class, // Pastikan UserSeeder dijalankan sebelum StokSeeder
             KategoriSeeder::class,
             SupplierSeeder::class,
             BarangSeeder::class,
@@ -22,6 +20,5 @@ class DatabaseSeeder extends Seeder
             PenjualanSeeder::class,
             PenjualanDetailSeeder::class,
         ]);
-
     }
 }

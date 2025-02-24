@@ -1,0 +1,24 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class StokSeeder extends Seeder
+{
+    public function run(): void
+    {
+        $data = [];
+        for ($i = 1; $i <= 15; $i++) {
+            $data[] = [
+                'barang_id' => $i,
+                'stok_jumlah' => rand(10, 100),
+                'supplier_id' => rand(1, 3), // Menambahkan supplier_id secara acak
+                'user_id' => rand(1, 3), // Menambahkan user_id secara acak
+            ];
+        }
+
+        DB::table('t_stok')->insert($data);
+    }
+}

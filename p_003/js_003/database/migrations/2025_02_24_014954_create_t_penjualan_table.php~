@@ -19,10 +19,9 @@ return new class extends Migration
             $table->dateTime('penjualan_tanggal');
             $table->timestamps();
 
-            // Perbaiki foreign key agar merujuk ke `id` di `m_user`
-            $table->foreign('user_id')->references('id')->on('m_user')->onDelete('cascade');
+            // Sesuaikan dengan primary key `user_id`
+            $table->foreign('user_id')->references('user_id')->on('m_user')->onDelete('cascade');
         });
-
     }
 
     /**
