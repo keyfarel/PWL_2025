@@ -12,7 +12,7 @@ class UserController extends Controller
     public function index()
     {
 
-// praktikum 1
+//        praktikum 1
 
 //        $data = ['level_id' => 2,
 //            'username' => 'manager_tiga',
@@ -24,11 +24,16 @@ class UserController extends Controller
 //        $user = UserModel::all();
 //        return view('user', ['data' => $user]);
 
-// praktikum 2.1
+//        praktikum 2.1
+//
+//        $user = UserModel::findOr(29, ['username', 'nama'], function (){
+//            abort(404);
+//        });
+//        return view('user', ['data' => $user]);
 
-        $user = UserModel::findOr(29, ['username', 'nama'], function (){
-            abort(404);
-        });
+//        praktikum 2.2
+
+        $user = UserModel::where('username', 'manager9')->firstOrFail();
         return view('user', ['data' => $user]);
     }
 }
