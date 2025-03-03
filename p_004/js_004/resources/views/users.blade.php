@@ -34,6 +34,8 @@
             <th>Username</th>
             <th>Nama</th>
             <th>ID Level Pengguna</th>
+            <th>Kode Level</th>
+            <th>Nama Level</th>
             <th>Aksi</th>
         </tr>
         </thead>
@@ -44,6 +46,8 @@
                 <td>{{ $d->username }}</td>
                 <td>{{ $d->nama }}</td>
                 <td>{{ $d->level_id }}</td>
+                <td>{{ $d->level->level_kode }}</td>
+                <td>{{ $d->level->level_nama}}</td>
                 <td>
                     <a href="/user/ubah/{{ $d->user_id }}">Ubah</a> |
                     <a href="/user/hapus/{{ $d->user_id }}"
