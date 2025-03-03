@@ -37,8 +37,20 @@ class UserController extends Controller
 //        return view('user', ['data' => $user]);
 
 //        praktikum 2.3
+//
+//        $user = UserModel::where('level_id', 2)->count();
+//        return view('user_count', ['data' => $user]);
 
-        $user = UserModel::where('level_id', 2)->count();
-        return view('user_count', ['data' => $user]);
+//        praktikum 2.4
+
+        $user = UserModel::firstOrNew([
+            'username' => 'manager',
+            'nama' => 'Manager',
+            'password' => Hash::make('12345'),
+            'level_id' => 2
+        ]);
+        $user->save();
+
+        return view('user', ['data' => $user]);
     }
 }
