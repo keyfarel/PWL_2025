@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ confg('app.name', 'PWL Laravel Starter Code') }}</title>
+    <title>{{ config('app.name', 'PWL Laravel Starter Code') }}</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
@@ -11,7 +11,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/fontawesome-free/css/all.min.css') }}">
     <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset()('adminlte/dist/css/adminlte.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
 </head>
 <body class="hold-transition sidebar-mini">
 <!-- Site wrapper -->
