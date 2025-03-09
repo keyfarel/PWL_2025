@@ -32,6 +32,7 @@ class BarangSeeder extends Seeder
             $data[] = [
                 'barang_id' => $index + 1,
                 'kategori_id' => ($index % 5) + 1,
+                'barang_kode' => 'BRG' . str_pad($index + 1, 3, '0', STR_PAD_LEFT),
                 'barang_nama' => $b[0],
                 'harga_beli' => rand(5000, 50000),
                 'harga_jual' => rand(51000, 100000),

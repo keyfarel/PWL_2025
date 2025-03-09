@@ -14,8 +14,9 @@ class StokSeeder extends Seeder
             $data[] = [
                 'barang_id' => $i,
                 'stok_jumlah' => rand(10, 100),
-                'supplier_id' => rand(1, 3), // Menambahkan supplier_id secara acak
-                'user_id' => rand(1, 3), // Menambahkan user_id secara acak
+                'supplier_id' => rand(1, 3),
+                'user_id' => rand(1, 3),
+                'stok_tanggal' => now(),
             ];
         }
 

@@ -20,7 +20,7 @@ class PenjualanDetailSeeder extends Seeder
         foreach ($penjualanIds as $penjualan_id) {
             for ($j = 1; $j <= 3; $j++) { // 3 barang per transaksi
                 $barang_id = $barangIds[array_rand($barangIds)];
-                $harga = DB::table('m_barang')->where('barang_id', $barang_id)->value('harga');
+                $harga = DB::table('m_barang')->where('barang_id', $barang_id)->value('harga_jual');
                 $jumlah = rand(1, 5);
 
                 $data[] = [

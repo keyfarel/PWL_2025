@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('m_user', function (Blueprint $table) {
-            $table->id('user_id'); // Ubah dari $table->id() menjadi $table->id('user_id')
-            $table->unsignedBigInteger('level_id')->index();
-            $table->string('username', 20)->unique();
-            $table->string('nama', 100);
-            $table->string('password');
+        Schema::create('m_supplier', function (Blueprint $table) {
+            $table->id('supplier_id');
+            $table->string('supplier_kode', 10);
+            $table->string('supplier_nama', 100);
+            $table->string('supplier_alamat', 255);
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('m_user');
+        Schema::dropIfExists('m_supplier');
     }
 };

@@ -33,7 +33,7 @@ class UserSeeder extends Seeder
                 'user_id' => 3,
                 'level_id' => 3,
                 'username' => 'staff',
-                'name' => 'Staff/Kasir',
+                'nama' => 'Staff/Kasir',
                 'password' => Hash::make('12345'),
             ],
         ];
