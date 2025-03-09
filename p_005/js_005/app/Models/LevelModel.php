@@ -9,7 +9,16 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class LevelModel extends Model
 {
+    use HasFactory;
+
     protected $table = 'm_level';
+    protected $primaryKey = 'level_id';
+    public $timestamps = true;
+
+    protected $fillable = [
+        'level_kode',
+        'level_nama'
+    ];
 
     public function user(): HasMany
     {
