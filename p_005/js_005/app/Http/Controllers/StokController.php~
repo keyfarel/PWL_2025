@@ -1,0 +1,176 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\StokModel;
+use App\Models\SupplierModel;
+use App\Models\BarangModel;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
+
+class StokController extends Controller
+{
+    public function index()
+    {
+        $breadcrumbs = (object)[
+            'title' => 'Daftar Stok',
+            'list'  => ['Home', 'Stok']
+        ];
+
+        $page = (object)[
+            'title' => 'Daftar stok dalam sistem'
+        ];
+
+        $activeMenu = 'stok';
+
+        return view('stok.index', compact('breadcrumbs', 'page', 'activeMenu'));
+    }
+
+    public function list(Request $request)
+    {
+        $stoks = StokModel::with(['supplier', 'user', 'barang'])->select('t_stok.*');
+
+        return DataTables::of($stoks)
+            ->addIndexColumn()
+            ->addColumn('supplier_name', function ($stok) {
+                return $stok->supplier ? $stok->supplier->supplier_nama : '-';
+            })
+            ->addColumn('user_name', function ($stok) {
+                return $stok->user ? $stok->user->nama : '-';
+            })
+            ->addColumn('barang_name', function ($stok) {
+                return $stok->barang ? $stok->barang->barang_nama : '-';
+            })
+            ->addColumn('aksi', function ($stok) {
+                $btn = '<a href="' . url('/stok/' . $stok->stok_id) . '" class="btn btn-info btn-sm">Detail</a> ';
+                $btn .= '<a href="' . url('/stok/' . $stok->stok_id . '/edit') . '" class="btn btn-warning btn-sm">Edit</a> ';
+                $btn .= '<form class="d-inline-block" method="POST" action="' . url('/stok/' . $stok->stok_id) . '" style="display:inline;">'
+                    . csrf_field() . method_field('DELETE') .
+                    '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin hapus data ini?\');">Hapus</button>
+                </form>';
+                return $btn;
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+
+    public function create()
+    {
+        $breadcrumbs = (object)[
+            'title' => 'Tambah Stok',
+            'list'  => ['Home', 'Stok', 'Tambah']
+        ];
+
+        $page = (object)[
+            'title' => 'Tambah stok baru'
+        ];
+
+        $activeMenu = 'stok';
+
+        $suppliers = SupplierModel::all();
+        $users     = UserModel::all();
+        $barangs   = BarangModel::all();
+
+        return view('stok.create', compact('breadcrumbs', 'page', 'activeMenu', 'suppliers', 'users', 'barangs'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'supplier_id'  => 'required|exists:m_supplier,supplier_id',
+            'user_id'      => 'required|exists:m_user,user_id',
+            'barang_id'    => 'required|exists:m_barang,barang_id',
+            'stok_tanggal' => 'required|date',
+            'stok_jumlah'  => 'required|integer'
+        ]);
+
+        StokModel::create([
+            'supplier_id'  => $request->supplier_id,
+            'user_id'      => $request->user_id,
+            'barang_id'    => $request->barang_id,
+            'stok_tanggal' => $request->stok_tanggal,
+            'stok_jumlah'  => $request->stok_jumlah
+        ]);
+
+        return redirect('/stok')->with('success', 'Data stok berhasil ditambahkan');
+    }
+
+    public function show($id)
+    {
+        $stok = StokModel::with(['supplier', 'user', 'barang'])->find($id);
+
+        $breadcrumbs = (object)[
+            'title' => 'Detail Stok',
+            'list'  => ['Home', 'Stok', 'Detail']
+        ];
+
+        $page = (object)[
+            'title' => 'Detail stok'
+        ];
+
+        $activeMenu = 'stok';
+
+        return view('stok.show', compact('stok', 'breadcrumbs', 'page', 'activeMenu'));
+    }
+
+    public function edit($id)
+    {
+        $stok = StokModel::findOrFail($id);
+
+        $breadcrumbs = (object)[
+            'title' => 'Edit Stok',
+            'list'  => ['Home', 'Stok', 'Edit']
+        ];
+
+        $page = (object)[
+            'title' => 'Edit stok'
+        ];
+
+        $activeMenu = 'stok';
+
+        $suppliers = SupplierModel::all();
+        $users     = UserModel::all();
+        $barangs   = BarangModel::all();
+
+        return view('stok.edit', compact('stok', 'breadcrumbs', 'page', 'activeMenu', 'suppliers', 'users', 'barangs'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'supplier_id'  => 'required|exists:m_supplier,supplier_id',
+            'user_id'      => 'required|exists:m_user,user_id',
+            'barang_id'    => 'required|exists:m_barang,barang_id',
+            'stok_tanggal' => 'required|date',
+            'stok_jumlah'  => 'required|integer'
+        ]);
+
+        $stok = StokModel::findOrFail($id);
+        $stok->update([
+            'supplier_id'  => $request->supplier_id,
+            'user_id'      => $request->user_id,
+            'barang_id'    => $request->barang_id,
+            'stok_tanggal' => $request->stok_tanggal,
+            'stok_jumlah'  => $request->stok_jumlah
+        ]);
+
+        return redirect('/stok')->with('success', 'Data stok berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $stok = StokModel::find($id);
+
+        if (!$stok) {
+            return redirect('/stok')->with('error', 'Data stok tidak ditemukan');
+        }
+
+        try {
+            $stok->delete();
+            return redirect('/stok')->with('success', 'Data stok berhasil dihapus');
+        } catch (\Illuminate\Database\QueryException $e) {
+            return redirect('/stok')->with('error', 'Data stok gagal dihapus karena masih terkait dengan data lain');
+        }
+    }
+}
