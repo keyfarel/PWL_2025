@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\PenjualanController;
+use App\Http\Controllers\PenjualanDetailController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\LevelController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\StokController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [WelcomeController::class, 'index']);
@@ -50,4 +53,39 @@ Route::prefix('barang')->group(function () {
     Route::get('/{id}/edit', [BarangController::class, 'edit']);
     Route::put('/{id}', [BarangController::class, 'update']);
     Route::delete('/{id}', [BarangController::class, 'destroy']);
+});
+
+Route::prefix('stok')->group(function () {
+    Route::get('/', [StokController::class, 'index']);
+    Route::post('/list', [StokController::class, 'list'])->name('stok.list');
+    Route::get('/create', [StokController::class, 'create']);
+    Route::post('/', [StokController::class, 'store']);
+    Route::get('/{id}', [StokController::class, 'show']);
+    Route::get('/{id}/edit', [StokController::class, 'edit']);
+    Route::put('/{id}', [StokController::class, 'update']);
+    Route::delete('/{id}', [StokController::class, 'destroy']);
+});
+
+Route::prefix('penjualan')->group(function () {
+    // Penjualan (header)
+    Route::get('/', [PenjualanController::class, 'index']);
+    Route::post('/list', [PenjualanController::class, 'list'])->name('penjualan.list');
+    Route::get('/create', [PenjualanController::class, 'create']);
+    Route::post('/', [PenjualanController::class, 'store']);
+    Route::get('/{id}', [PenjualanController::class, 'show']);
+    Route::get('/{id}/edit', [PenjualanController::class, 'edit']);
+    Route::put('/{id}', [PenjualanController::class, 'update']);
+    Route::delete('/{id}', [PenjualanController::class, 'destroy']);
+
+    // Penjualan Detail (nested di dalam penjualan)
+    Route::prefix('{penjualan_id}/detail')->group(function () {
+        Route::get('/', [PenjualanDetailController::class, 'index']);
+        Route::post('/list', [PenjualanDetailController::class, 'list'])->name('penjualan.detail.list');
+        Route::get('/create', [PenjualanDetailController::class, 'create']);
+        Route::post('/', [PenjualanDetailController::class, 'store']);
+        Route::get('/{detail_id}', [PenjualanDetailController::class, 'show']);
+        Route::get('/{detail_id}/edit', [PenjualanDetailController::class, 'edit']);
+        Route::put('/{detail_id}', [PenjualanDetailController::class, 'update']);
+        Route::delete('/{detail_id}', [PenjualanDetailController::class, 'destroy']);
+    });
 });

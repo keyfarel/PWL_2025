@@ -1,0 +1,173 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\PenjualanModel;
+use App\Models\User;
+use App\Models\UserModel;
+use Illuminate\Http\Request;
+use Yajra\DataTables\Facades\DataTables;
+
+class PenjualanController extends Controller
+{
+    public function index()
+    {
+        $breadcrumbs = (object)[
+            'title' => 'Daftar Penjualan',
+            'list'  => ['Home', 'Penjualan']
+        ];
+
+        $page = (object)[
+            'title' => 'Daftar penjualan'
+        ];
+
+        $activeMenu = 'penjualan';
+
+        return view('penjualan.index', compact('breadcrumbs', 'page', 'activeMenu'));
+    }
+
+    /**
+     * Server-side DataTables
+     */
+    public function list(Request $request)
+    {
+        $penjualans = PenjualanModel::with('user')->select('t_penjualan.*');
+
+        return DataTables::of($penjualans)
+            ->addIndexColumn()
+            ->addColumn('user_name', function($p) {
+                return $p->user ? $p->user->nama : '-';
+            })
+            ->addColumn('aksi', function($p) {
+                $btn = '<a href="'.url('/penjualan/'.$p->penjualan_id).'" class="btn btn-info btn-sm">Detail</a> ';
+                $btn .= '<a href="'.url('/penjualan/'.$p->penjualan_id.'/edit').'" class="btn btn-warning btn-sm">Edit</a> ';
+                $btn .= '<form class="d-inline-block" method="POST" action="'.url('/penjualan/'.$p->penjualan_id).'" style="display:inline;">'
+                    . csrf_field() . method_field('DELETE') .
+                    '<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Yakin hapus data ini?\');">Hapus</button>
+                     </form>';
+                return $btn;
+            })
+            ->rawColumns(['aksi'])
+            ->make(true);
+    }
+
+    public function create()
+    {
+        $breadcrumbs = (object)[
+            'title' => 'Tambah Penjualan',
+            'list'  => ['Home', 'Penjualan', 'Tambah']
+        ];
+
+        $page = (object)[
+            'title' => 'Tambah penjualan baru'
+        ];
+
+        $activeMenu = 'penjualan';
+
+        // Jika user diambil dari m_user
+        $users = UserModel::all();
+
+        return view('penjualan.create', compact('breadcrumbs', 'page', 'activeMenu', 'users'));
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'user_id'            => 'required|exists:m_user,user_id',
+            'pembeli'            => 'required|string|max:100',
+            'penjualan_kode'     => 'required|string|max:50|unique:t_penjualan,penjualan_kode',
+            'penjualan_tanggal'  => 'required|date',
+            'total_harga'        => 'required|numeric'
+        ]);
+
+        PenjualanModel::create([
+            'user_id'           => $request->user_id,
+            'pembeli'           => $request->pembeli,
+            'penjualan_kode'    => $request->penjualan_kode,
+            'penjualan_tanggal' => $request->penjualan_tanggal,
+            'total_harga'       => $request->total_harga
+        ]);
+
+        return redirect('/penjualan')->with('success', 'Penjualan berhasil ditambahkan');
+    }
+
+    /**
+     * Show detail penjualan (header + detail read-only)
+     */
+    public function show($id)
+    {
+        // Memuat user (pencatat) dan detail (beserta barang)
+        $penjualan = PenjualanModel::with(['user', 'detail.barang'])->find($id);
+
+        $breadcrumbs = (object)[
+            'title' => 'Detail Penjualan',
+            'list'  => ['Home', 'Penjualan', 'Detail']
+        ];
+
+        $page = (object)[
+            'title' => 'Detail penjualan'
+        ];
+
+        $activeMenu = 'penjualan';
+
+        return view('penjualan.detail.index', compact('penjualan', 'breadcrumbs', 'page', 'activeMenu'));
+    }
+
+    public function edit($id)
+    {
+        $penjualan = PenjualanModel::findOrFail($id);
+
+        $breadcrumbs = (object)[
+            'title' => 'Edit Penjualan',
+            'list'  => ['Home', 'Penjualan', 'Edit']
+        ];
+
+        $page = (object)[
+            'title' => 'Edit penjualan'
+        ];
+
+        $activeMenu = 'penjualan';
+
+        $users = UserModel::all();
+
+        return view('penjualan.edit', compact('penjualan', 'breadcrumbs', 'page', 'activeMenu', 'users'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'user_id'            => 'required|exists:m_user,user_id',
+            'pembeli'            => 'required|string|max:100',
+            'penjualan_kode'     => 'required|string|max:50|unique:t_penjualan,penjualan_kode,' . $id . ',penjualan_id',
+            'penjualan_tanggal'  => 'required|date',
+            'total_harga'        => 'required|numeric'
+        ]);
+
+        $penjualan = PenjualanModel::findOrFail($id);
+        $penjualan->update([
+            'user_id'           => $request->user_id,
+            'pembeli'           => $request->pembeli,
+            'penjualan_kode'    => $request->penjualan_kode,
+            'penjualan_tanggal' => $request->penjualan_tanggal,
+            'total_harga'       => $request->total_harga
+        ]);
+
+        return redirect('/penjualan')->with('success', 'Penjualan berhasil diperbarui');
+    }
+
+    public function destroy($id)
+    {
+        $penjualan = PenjualanModel::find($id);
+
+        if (!$penjualan) {
+            return redirect('/penjualan')->with('error', 'Data penjualan tidak ditemukan');
+        }
+
+        try {
+            $penjualan->delete();
+            return redirect('/penjualan')->with('success', 'Data penjualan berhasil dihapus');
+        } catch (\Illuminate\Database\QueryException $e) {
+            return redirect('/penjualan')->with('error', 'Data penjualan gagal dihapus karena masih terkait dengan data lain');
+        }
+    }
+}

@@ -49,7 +49,7 @@ class BarangController extends Controller
 
     public function show($id)
     {
-        $barang = BarangModel::with('kategori')->find($id);
+        $barang = BarangModel::with(['kategori', 'stok.supplier', 'penjualanDetail.penjualan'])->find($id);
 
         $breadcrumbs = (object)[
             'title' => 'Detail Barang',
