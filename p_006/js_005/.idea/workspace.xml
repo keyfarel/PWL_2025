@@ -5,9 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="999a9c9b-6787-4a26-a426-85ebac22c40b" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/../js_006/resources/views/user/create_ajax.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../p_005/js_005/app/Http/Controllers/LevelController.php" beforeDir="false" afterPath="$PROJECT_DIR$/../../p_005/js_005/app/Http/Controllers/LevelController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../p_005/js_005/resources/views/level/index.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/../../p_005/js_005/resources/views/level/index.blade.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../js_006/resources/views/user/edit_ajax.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../js_006/app/Http/Controllers/UserController.php" beforeDir="false" afterPath="$PROJECT_DIR$/../js_006/app/Http/Controllers/UserController.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../js_006/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/../js_006/routes/web.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -338,7 +339,7 @@
       <workItem from="1741846154926" duration="3020000" />
       <workItem from="1741849824554" duration="513000" />
       <workItem from="1741866721500" duration="1920000" />
-      <workItem from="1742049043636" duration="335000" />
+      <workItem from="1742049043636" duration="2546000" />
     </task>
     <servers />
   </component>
