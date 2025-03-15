@@ -70,6 +70,10 @@
                     {data: "aksi", className: "", orderable: false, searchable: false}
                 ]
             });
+
+            $('#level_id').on('change', function () {
+                dataLevel.ajax.reload();
+            });
         });
     </script>
 @endpush
