@@ -51,13 +51,15 @@ Route::prefix('kategori')->group(function () {
 Route::prefix('barang')->group(function () {
     Route::get('/', [BarangController::class, 'index']);
     Route::post('/list', [BarangController::class, 'list'])->name('barang.list');
-    Route::get('/create', [BarangController::class, 'create']);
-    Route::post('/', [BarangController::class, 'store']);
-    Route::get('/{id}', [BarangController::class, 'show']);
-    Route::get('/{id}/edit', [BarangController::class, 'edit']);
-    Route::put('/{id}', [BarangController::class, 'update']);
-    Route::delete('/{id}', [BarangController::class, 'destroy']);
+    Route::get('/create_ajax', [BarangController::class, 'create_ajax']);
+    Route::post('/ajax', [BarangController::class, 'store_ajax']);
+    Route::get('/{id}/show_ajax', [BarangController::class, 'show_ajax'])->name('barang.show_ajax');
+    Route::get('/{id}/edit_ajax', [BarangController::class, 'edit_ajax']);
+    Route::put('/{id}/update_ajax', [BarangController::class, 'update_ajax']);
+    Route::get('/{id}/delete_ajax', [BarangController::class, 'confirm_ajax']);
+    Route::delete('/{id}/delete_ajax', [BarangController::class, 'delete_ajax']);
 });
+
 
 Route::prefix('stok')->group(function () {
     Route::get('/', [StokController::class, 'index']);

@@ -17,6 +17,7 @@
             @if (session('error'))
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
+            <!-- Filter -->
             <div class="row">
                 <div class="col-md-12">
                     <div class="form-group row">
