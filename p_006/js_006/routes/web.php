@@ -64,12 +64,13 @@ Route::prefix('barang')->group(function () {
 Route::prefix('stok')->group(function () {
     Route::get('/', [StokController::class, 'index']);
     Route::post('/list', [StokController::class, 'list'])->name('stok.list');
-    Route::get('/create', [StokController::class, 'create']);
-    Route::post('/', [StokController::class, 'store']);
-    Route::get('/{id}', [StokController::class, 'show']);
-    Route::get('/{id}/edit', [StokController::class, 'edit']);
-    Route::put('/{id}', [StokController::class, 'update']);
-    Route::delete('/{id}', [StokController::class, 'destroy']);
+    Route::get('/create_ajax', [StokController::class, 'create_ajax']);
+    Route::post('/ajax', [StokController::class, 'store_ajax']);
+    Route::get('/{id}/show_ajax', [StokController::class, 'show_ajax'])->name('stok.show_ajax');
+    Route::get('/{id}/edit_ajax', [StokController::class, 'edit_ajax']);
+    Route::put('/{id}/update_ajax', [StokController::class, 'update_ajax']);
+    Route::get('/{id}/delete_ajax', [StokController::class, 'confirm_ajax']);
+    Route::delete('/{id}/delete_ajax', [StokController::class, 'delete_ajax']);
 });
 
 
