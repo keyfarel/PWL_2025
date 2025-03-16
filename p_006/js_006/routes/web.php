@@ -77,10 +77,7 @@ Route::prefix('stok')->group(function () {
 Route::prefix('penjualan')->group(function () {
     Route::get('/', [PenjualanController::class, 'index']);
     Route::post('/list', [PenjualanController::class, 'list'])->name('penjualan.list');
-    Route::get('/create', [PenjualanController::class, 'create']);
-    Route::post('/', [PenjualanController::class, 'store']);
-    Route::get('/{id}', [PenjualanController::class, 'show']);  // <-- Detail penjualan (header + detail)
-    Route::get('/{id}/edit', [PenjualanController::class, 'edit']);
-    Route::put('/{id}', [PenjualanController::class, 'update']);
-    Route::delete('/{id}', [PenjualanController::class, 'destroy']);
+    Route::get('/{id}/show_ajax', [PenjualanController::class, 'show_ajax']);
+    Route::get('/{id}/delete_ajax', [PenjualanController::class, 'confirm_ajax']);
+    Route::delete('/{id}/delete_ajax', [PenjualanController::class, 'delete_ajax']);
 });
