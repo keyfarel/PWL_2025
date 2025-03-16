@@ -11,7 +11,7 @@ class KategoriModel extends Model
 
     protected $table = 'm_kategori';
 
-    protected $primaryKey = 'id';
+    protected $primaryKey = 'kategori_id';
 
     public $timestamps = true;
 
@@ -22,6 +22,6 @@ class KategoriModel extends Model
 
     public function barang()
     {
-        return $this->hasMany(BarangModel::class, 'kategori_id', 'id');
+        return $this->hasMany(BarangModel::class, 'kategori_id', 'kategori_id');
     }
 }

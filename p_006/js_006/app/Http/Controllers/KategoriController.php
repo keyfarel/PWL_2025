@@ -27,14 +27,18 @@ class KategoriController extends Controller
 
     public function list(Request $request)
     {
-        $kategories = KategoriModel::select('id', 'kategori_kode', 'kategori_nama');
+        $kategories = KategoriModel::select('kategori_id', 'kategori_kode', 'kategori_nama');
+
+        if ($request->id) {
+            $kategories->where('id', $request->id);
+        }
 
         return DataTables::of($kategories)
             ->addIndexColumn()
             ->addColumn('aksi', function ($kategori) {
                 // Tombol aksi menggunakan AJAX: Edit dan Hapus
-                $btn  = '<button onclick="modalAction(\'' . url('/kategori/' . $kategori->id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="deleteKategori(\'' . $kategori->id . '\')" class="btn btn-danger btn-sm">Hapus</button>';
+                $btn  = '<button onclick="modalAction(\'' . url('/kategori/' . $kategori->kategori_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="deleteKategori(\'' . $kategori->kategori_id . '\')" class="btn btn-danger btn-sm">Hapus</button>';
                 return $btn;
             })
             ->rawColumns(['aksi'])
@@ -89,8 +93,8 @@ class KategoriController extends Controller
     {
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
-                'kategori_kode' => 'required|string|max:50|unique:m_kategori,kategori_kode,'.$id.',id',
-                'kategori_nama' => 'required|string|max:100|unique:m_kategori,kategori_nama,'.$id.',id'
+                'kategori_kode' => 'required|string|max:50|unique:m_kategori,kategori_kode,'.$id.',kategori_id',
+                'kategori_nama' => 'required|string|max:100|unique:m_kategori,kategori_nama,'.$id.',kategori_id'
             ];
 
             $validator = Validator::make($request->all(), $rules);

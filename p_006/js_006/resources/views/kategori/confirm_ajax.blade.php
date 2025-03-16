@@ -28,7 +28,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-warning" data-dismiss="modal">Batal</button>
-                <button type="button" onclick="deleteKategori('{{ $kategori->id }}')" class="btn btn-danger">Hapus
+                <button type="button" onclick="deleteKategori('{{ $kategori->kategori_id }}')" class="btn btn-danger">Hapus
                 </button>
             </div>
         </div>
