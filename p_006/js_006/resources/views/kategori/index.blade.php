@@ -5,7 +5,9 @@
         <div class="card-header">
             <h3 class="card-title">{{ $page->title }}</h3>
             <div class="card-tools">
-                <a class="btn btn-sm btn-primary mt-1" href="{{ url('kategori/create') }}">Tambah</a>
+                <button onclick="modalAction('{{ url('kategori/create_ajax') }}')" class="btn btn-sm btn-success mt-1">
+                    Tambah Ajax
+                </button>
             </div>
         </div>
         <div class="card-body">
@@ -28,6 +30,9 @@
             </table>
         </div>
     </div>
+
+    <!-- Modal Global untuk AJAX (gunakan id "myModal") -->
+    <div id="myModal" class="modal fade" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false"></div>
 @endsection
 
 @push('css')
@@ -35,8 +40,65 @@
 
 @push('js')
     <script>
+        // Fungsi untuk memuat konten modal via AJAX
+        function modalAction(url = '') {
+            $('#myModal').load(url, function () {
+                $('#myModal').modal('show');
+            });
+        }
+
+        // Fungsi untuk menghapus kategori secara AJAX
+        function deleteKategori(id) {
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Apakah Anda yakin menghapus kategori ini?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/kategori/' + id + '/delete_ajax',  // Menggunakan route DELETE /kategori/{id}
+                        type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function (response) {
+                            if (response.status) {
+                                // Tutup modal (jika ada) dan tampilkan notifikasi
+                                $('#myModal').modal('hide');
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Berhasil',
+                                    text: response.message
+                                });
+                                // Reload DataTable agar data terbaru tampil
+                                dataKategori.ajax.reload();
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Terjadi Kesalahan',
+                                    text: response.message
+                                });
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error(error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Gagal menghapus kategori.'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        var dataKategori;
         $(document).ready(function () {
-            var dataKategori = $('#table_kategori').DataTable({
+            dataKategori = $('#table_kategori').DataTable({
                 serverSide: true,
                 processing: true,
                 ajax: {
