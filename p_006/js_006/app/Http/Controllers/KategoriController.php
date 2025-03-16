@@ -22,15 +22,17 @@ class KategoriController extends Controller
 
         $activeMenu = 'kategori';
 
-        return view('kategori.index', compact('breadcrumbs', 'page', 'activeMenu'));
+        $kategories = KategoriModel::all();
+
+        return view('kategori.index', compact('breadcrumbs', 'page', 'activeMenu', 'kategories'));
     }
 
     public function list(Request $request)
     {
         $kategories = KategoriModel::select('kategori_id', 'kategori_kode', 'kategori_nama');
 
-        if ($request->id) {
-            $kategories->where('id', $request->id);
+        if ($request->kategori_id) {
+            $kategories->where('kategori_id', $request->kategori_id);
         }
 
         return DataTables::of($kategories)

@@ -17,7 +17,23 @@
             @if (session('error'))
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
-
+            <!-- Filter -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="form-group row">
+                        <label class="col-1 control-label col-form-label">Filter</label>
+                        <div class="col-3">
+                            <select class="form-control" id="kategori_id" name="kategori_id">
+                                <option value="">Semua</option>
+                                @foreach($kategories as $item)
+                                    <option value="{{ $item->kategori_id }}">{{ $item->kategori_nama }}</option>
+                                @endforeach
+                            </select>
+                            <small class="form-text text-muted">Kategori ID</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <table class="table table-bordered table-striped table-hover table-sm" id="table_kategori">
                 <thead>
                 <tr>
@@ -40,59 +56,9 @@
 
 @push('js')
     <script>
-        // Fungsi untuk memuat konten modal via AJAX
         function modalAction(url = '') {
             $('#myModal').load(url, function () {
                 $('#myModal').modal('show');
-            });
-        }
-
-        // Fungsi untuk menghapus kategori secara AJAX
-        function deleteKategori(id) {
-            Swal.fire({
-                title: 'Konfirmasi',
-                text: 'Apakah Anda yakin menghapus kategori ini?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: '/kategori/' + id + '/delete_ajax',  // Menggunakan route DELETE /kategori/{id}
-                        type: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function (response) {
-                            if (response.status) {
-                                // Tutup modal (jika ada) dan tampilkan notifikasi
-                                $('#myModal').modal('hide');
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil',
-                                    text: response.message
-                                });
-                                // Reload DataTable agar data terbaru tampil
-                                dataKategori.ajax.reload();
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Terjadi Kesalahan',
-                                    text: response.message
-                                });
-                            }
-                        },
-                        error: function (xhr, status, error) {
-                            console.error(error);
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Gagal menghapus kategori.'
-                            });
-                        }
-                    });
-                }
             });
         }
 
@@ -103,7 +69,10 @@
                 processing: true,
                 ajax: {
                     url: "{{ route('kategori.list') }}",
-                    type: "POST"
+                    type: "POST",
+                    data: function (d) {
+                        d.kategori_id = $('#kategori_id').val();
+                    }
                 },
                 columns: [
                     {data: "DT_RowIndex", className: "text-center", orderable: false, searchable: false},
@@ -111,6 +80,9 @@
                     {data: "kategori_nama", orderable: true, searchable: true},
                     {data: "aksi", orderable: false, searchable: false, className: "text-center"}
                 ]
+            });
+            $('#kategori_id').on('change', function () {
+                dataKategori.ajax.reload();
             });
         });
     </script>
