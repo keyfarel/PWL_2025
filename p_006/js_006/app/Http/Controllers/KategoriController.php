@@ -13,7 +13,7 @@ class KategoriController extends Controller
     {
         $breadcrumbs = (object)[
             'title' => 'Daftar Kategori',
-            'list'  => ['Home', 'Kategori']
+            'list' => ['Home', 'Kategori']
         ];
 
         $page = (object)[
@@ -38,9 +38,9 @@ class KategoriController extends Controller
         return DataTables::of($kategories)
             ->addIndexColumn()
             ->addColumn('aksi', function ($kategori) {
-                // Tombol aksi menggunakan AJAX: Edit dan Hapus
-                $btn  = '<button onclick="modalAction(\'' . url('/kategori/' . $kategori->kategori_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="deleteKategori(\'' . $kategori->kategori_id . '\')" class="btn btn-danger btn-sm">Hapus</button>';
+
+                $btn = '<button onclick="modalAction(\'' . url('/kategori/' . $kategori->kategori_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/kategori/' . $kategori->kategori_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button>';
                 return $btn;
             })
             ->rawColumns(['aksi'])
@@ -65,8 +65,8 @@ class KategoriController extends Controller
 
             if ($validator->fails()) {
                 return response()->json([
-                    'status'   => false,
-                    'message'  => 'Validasi gagal.',
+                    'status' => false,
+                    'message' => 'Validasi gagal.',
                     'msgField' => $validator->errors()
                 ]);
             }
@@ -77,7 +77,7 @@ class KategoriController extends Controller
             ]);
 
             return response()->json([
-                'status'  => true,
+                'status' => true,
                 'message' => 'Data kategori berhasil disimpan.'
             ]);
         }
@@ -95,15 +95,15 @@ class KategoriController extends Controller
     {
         if ($request->ajax() || $request->wantsJson()) {
             $rules = [
-                'kategori_kode' => 'required|string|max:50|unique:m_kategori,kategori_kode,'.$id.',kategori_id',
-                'kategori_nama' => 'required|string|max:100|unique:m_kategori,kategori_nama,'.$id.',kategori_id'
+                'kategori_kode' => 'required|string|max:50|unique:m_kategori,kategori_kode,' . $id . ',kategori_id',
+                'kategori_nama' => 'required|string|max:100|unique:m_kategori,kategori_nama,' . $id . ',kategori_id'
             ];
 
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
                 return response()->json([
-                    'status'   => false,
-                    'message'  => 'Validasi gagal.',
+                    'status' => false,
+                    'message' => 'Validasi gagal.',
                     'msgField' => $validator->errors()
                 ]);
             }
@@ -116,12 +116,12 @@ class KategoriController extends Controller
                 ]);
 
                 return response()->json([
-                    'status'  => true,
+                    'status' => true,
                     'message' => 'Data kategori berhasil diperbarui.'
                 ]);
             } else {
                 return response()->json([
-                    'status'  => false,
+                    'status' => false,
                     'message' => 'Data kategori tidak ditemukan.'
                 ]);
             }
@@ -143,18 +143,18 @@ class KategoriController extends Controller
                 try {
                     $kategori->delete();
                     return response()->json([
-                        'status'  => true,
+                        'status' => true,
                         'message' => 'Data kategori berhasil dihapus.'
                     ]);
                 } catch (\Illuminate\Database\QueryException $e) {
                     return response()->json([
-                        'status'  => false,
+                        'status' => false,
                         'message' => 'Data kategori gagal dihapus karena masih terkait dengan data lain.'
                     ]);
                 }
             } else {
                 return response()->json([
-                    'status'  => false,
+                    'status' => false,
                     'message' => 'Data kategori tidak ditemukan.'
                 ]);
             }

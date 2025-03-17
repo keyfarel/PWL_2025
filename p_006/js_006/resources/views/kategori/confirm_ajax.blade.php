@@ -9,12 +9,13 @@
             </div>
             <div class="modal-body">
                 <div class="alert alert-danger">
-                    Data kategori tidak ditemukan.
+                    Data Kategori tidak ditemukan.
                 </div>
             </div>
         </div>
     </div>
 @else
+    <!-- Tampilkan modal konfirmasi hapus -->
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -34,53 +35,57 @@
             </div>
         </div>
     </div>
-    <script>
-        function deleteKategori(id) {
-            Swal.fire({
-                title: 'Konfirmasi',
-                text: 'Apakah Anda yakin menghapus kategori ini?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        url: '/kategori/' + id + '/delete_ajax',  // Menggunakan route DELETE /kategori/{id}
-                        type: 'DELETE',
-                        data: {
-                            _token: '{{ csrf_token() }}'
-                        },
-                        success: function (response) {
-                            if (response.status) {
-                                // Tutup modal (jika ada) dan tampilkan notifikasi
-                                $('#myModal').modal('hide');
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Berhasil',
-                                    text: response.message
-                                });
-                                // Reload DataTable agar data terbaru tampil
-                                dataKategori.ajax.reload();
-                            } else {
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Terjadi Kesalahan',
-                                    text: response.message
-                                });
+@endif
+
+<script>
+    // Fungsi deleteLevel didefinisikan secara global
+    function deleteKategori(id) {
+        // Konfirmasi menggunakan SweetAlert
+        Swal.fire({
+            title: 'Konfirmasi',
+            text: 'Apakah Anda yakin ingin menghapus kategori ini?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, hapus!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/kategori/' + id + '/delete_ajax', // Sesuaikan URL jika perlu
+                    type: 'DELETE',
+                    data: {
+                        _token: '{{ csrf_token() }}' // Sertakan token CSRF
+                    },
+                    success: function (response) {
+                        if (response.status) {
+                            $('#myModal').modal('hide');
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil',
+                                text: response.message
+                            });
+                            // Reload DataTable jika variabel dataLevel tersedia
+                            if (window.dataKategori) {
+                                window.dataKategori.ajax.reload();
                             }
-                        },
-                        error: function (xhr, status, error) {
-                            console.error(error);
+                        } else {
                             Swal.fire({
                                 icon: 'error',
-                                title: 'Error',
-                                text: 'Gagal menghapus kategori.'
+                                title: 'Terjadi Kesalahan',
+                                text: response.message
                             });
                         }
-                    });
-                }
-            });
-        }
-    </script>
-@endif
+                    },
+                    error: function (xhr, status, error) {
+                        console.error(error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Gagal menghapus level.'
+                        });
+                    }
+                });
+            }
+        });
+    }
+</script>
