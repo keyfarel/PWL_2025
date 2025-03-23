@@ -11,8 +11,8 @@ use App\Http\Controllers\BarangController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [WelcomeController::class, 'index']);
-Route::pattern('id', '[0-9]+');
+// Hapus route ini agar tidak dapat diakses secara publik
+// Route::get('/', [WelcomeController::class, 'index']);
 
 Route::group(['prefix' => 'login'], function () {
     Route::get('/', [AuthController::class, 'login'])->name('login');
@@ -21,6 +21,27 @@ Route::group(['prefix' => 'login'], function () {
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
+// Semua route yang memerlukan autentikasi diletakkan di dalam middleware auth
+Route::middleware('auth')->group(function () {
+    // Route dashboard yang hanya bisa diakses setelah login
+    Route::get('/', [WelcomeController::class, 'index']);
+
+    Route::middleware(['authorize:ADM'])->group(function () {
+        Route::prefix('level')->group(function () {
+            Route::get('/', [LevelController::class, 'index']);
+            Route::post('/list', [LevelController::class, 'list'])->name('level.list');
+            Route::get('/create_ajax', [LevelController::class, 'create_ajax']);
+            Route::post('/ajax', [LevelController::class, 'store_ajax']);
+            Route::get('/{id}/show_ajax', [LevelController::class, 'show_ajax']);
+            Route::get('/{id}/edit_ajax', [LevelController::class, 'edit_ajax']);
+            Route::put('/{id}/update_ajax', [LevelController::class, 'update_ajax']);
+            Route::get('/{id}/delete_ajax', [LevelController::class, 'confirm_ajax']);
+            Route::delete('/{id}/delete_ajax', [LevelController::class, 'delete_ajax']);
+        });
+    });
+});
+
+// Sisa route yang tidak terkait dengan dashboard dapat dibiarkan seperti semula
 Route::group(['prefix' => 'user'], function () {
     Route::get('/', [UserController::class, 'index']);
     Route::post('/list', [UserController::class, 'list']);
@@ -31,18 +52,6 @@ Route::group(['prefix' => 'user'], function () {
     Route::put('/{id}/update_ajax', [UserController::class, 'update_ajax']);
     Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']);
     Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']);
-});
-
-Route::prefix('level')->group(function () {
-    Route::get('/', [LevelController::class, 'index']);
-    Route::post('/list', [LevelController::class, 'list'])->name('level.list');
-    Route::get('/create_ajax', [LevelController::class, 'create_ajax']);
-    Route::post('/ajax', [LevelController::class, 'store_ajax']);
-    Route::get('/{id}/show_ajax', [LevelController::class, 'show_ajax']);
-    Route::get('/{id}/edit_ajax', [LevelController::class, 'edit_ajax']);
-    Route::put('/{id}/update_ajax', [LevelController::class, 'update_ajax']);
-    Route::get('/{id}/delete_ajax', [LevelController::class, 'confirm_ajax']);
-    Route::delete('/{id}/delete_ajax', [LevelController::class, 'delete_ajax']);
 });
 
 Route::prefix('kategori')->group(function () {
@@ -56,7 +65,6 @@ Route::prefix('kategori')->group(function () {
     Route::delete('/{id}/delete_ajax', [KategoriController::class, 'delete_ajax']);
 });
 
-
 Route::prefix('barang')->group(function () {
     Route::get('/', [BarangController::class, 'index']);
     Route::post('/list', [BarangController::class, 'list'])->name('barang.list');
@@ -69,7 +77,6 @@ Route::prefix('barang')->group(function () {
     Route::delete('/{id}/delete_ajax', [BarangController::class, 'delete_ajax']);
 });
 
-
 Route::prefix('stok')->group(function () {
     Route::get('/', [StokController::class, 'index']);
     Route::post('/list', [StokController::class, 'list'])->name('stok.list');
@@ -81,7 +88,6 @@ Route::prefix('stok')->group(function () {
     Route::get('/{id}/delete_ajax', [StokController::class, 'confirm_ajax']);
     Route::delete('/{id}/delete_ajax', [StokController::class, 'delete_ajax']);
 });
-
 
 Route::prefix('penjualan')->group(function () {
     Route::get('/', [PenjualanController::class, 'index']);
