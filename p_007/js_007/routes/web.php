@@ -17,8 +17,9 @@ Route::pattern('id', '[0-9]+');
 Route::group(['prefix' => 'login'], function () {
     Route::get('/', [AuthController::class, 'login'])->name('login');
     Route::post('/', [AuthController::class, 'postlogin']);
-    Route::get('/logout', [AuthController::class, 'logout'])->middleware('auth');
 });
+
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
 Route::group(['prefix' => 'user'], function () {
     Route::get('/', [UserController::class, 'index']);

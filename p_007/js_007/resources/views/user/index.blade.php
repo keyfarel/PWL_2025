@@ -1,109 +1,115 @@
-<!-- resources/views/auth/login.blade.php -->
-@extends('layouts.auth')
-
-@section('title', 'Login Pengguna')
+@extends('layouts.template')
 
 @section('content')
-<div class="login-box">
-    <div class="card card-outline card-primary">
-        <div class="card-header text-center">
-            <a href="{{ url('/') }}" class="h1"><b>Admin</b>LTE</a>
-        </div>
-        <div class="card-body">
-            <p class="login-box-msg">Sign in to start your session</p>
-            <form action="{{ url('login') }}" method="POST" id="form-login">
-                @csrf
-                <div class="input-group mb-3">
-                    <input type="text" id="username" name="username" class="form-control" placeholder="Username">
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-user"></span>
-                        </div>
-                    </div>
-                    <small id="error-username" class="error-text text-danger"></small>
-                </div>
-                <div class="input-group mb-3">
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Password">
-                    <div class="input-group-append">
-                        <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
-                        </div>
-                    </div>
-                    <small id="error-password" class="error-text text-danger"></small>
-                </div>
-                <div class="row">
-                    <div class="col-8">
-                        <div class="icheck-primary">
-                            <input type="checkbox" id="remember">
-                            <label for="remember">Remember Me</label>
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
-                    </div>
-                </div>
-            </form>
+<div class="card card-outline card-primary">
+    <div class="card-header">
+        <h3 class="card-title">{{ $page->title }}</h3>
+        <div class="card-tools">
+            <button onclick="modalAction('{{ url('user/create_ajax') }}' )" class="btn btn-sm btn-success mt-1">
+                Tambah Ajax
+            </button>
         </div>
     </div>
+    <div class="card-body">
+        @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if (session('error'))
+        <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
+        <!-- Filter -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="form-group row">
+                    <label class="col-1 control-label col-form-label">Filter</label>
+                    <div class="col-3">
+                        <select class="form-control" id="level_id" name="level_id" required>
+                            <option value="">Semua</option>
+                            @foreach($level as $item)
+                            <option value="{{ $item->level_id }}">{{ $item->level_nama }}</option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">Level Pengguna</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class="table table-bordered table-striped table-hover table-sm" id="table_user">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Nama</th>
+                    <th>Level Pengguna</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+        </table>
+    </div>
 </div>
+
+<div id="myModal" class="modal fade animate shake" tabindex="-1" role="dialog" data-backdrop="static"
+    data-keyboard="false" data-width="75%" aria-hidden="true"></div>
 @endsection
+
+@push('css')
+@endpush
 
 @push('js')
 <script>
+    function modalAction(url = '') {
+        $('#myModal').load(url, function() {
+            $('#myModal').modal('show');
+        });
+    }
+
+    var dataUser;
     $(document).ready(function() {
-        $("#form-login").validate({
-            rules: {
-                username: {
-                    required: true,
-                    minlength: 4,
-                    maxlength: 20
-                },
-                password: {
-                    required: true,
-                    minlength: 6,
-                    maxlength: 20
+        dataUser = $('#table_user').DataTable({
+            serverSide: true,
+            ajax: {
+                url: "{{ url('user/list') }}",
+                dataType: "json",
+                type: "POST",
+                data: function(d) {
+                    d.level_id = $('#level_id').val();
                 }
             },
-            submitHandler: function(form) {
-                $.ajax({
-                    url: form.action,
-                    type: form.method,
-                    data: $(form).serialize(),
-                    success: function(response) {
-                        if (response.status) {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Berhasil',
-                                text: response.message,
-                            }).then(function() {
-                                window.location = response.redirect;
-                            });
-                        } else {
-                            $('.error-text').text('');
-                            $.each(response.msgField, function(prefix, val) {
-                                $('#error-' + prefix).text(val[0]);
-                            });
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Terjadi Kesalahan',
-                                text: response.message
-                            });
-                        }
-                    }
-                });
-                return false;
-            },
-            errorElement: 'span',
-            errorPlacement: function(error, element) {
-                error.addClass('invalid-feedback');
-                element.closest('.input-group').append(error);
-            },
-            highlight: function(element) {
-                $(element).addClass('is-invalid');
-            },
-            unhighlight: function(element) {
-                $(element).removeClass('is-invalid');
-            }
+            columns: [{
+                    data: "DT_RowIndex",
+                    className: "text-center",
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: "username",
+                    className: "",
+                    orderable: true,
+                    searchable: true
+                },
+                {
+                    data: "nama",
+                    className: "",
+                    orderable: true,
+                    searchable: true
+                },
+                {
+                    data: "level.level_nama",
+                    className: "",
+                    orderable: false,
+                    searchable: false
+                },
+                {
+                    data: "aksi",
+                    className: "",
+                    orderable: false,
+                    searchable: false
+                }
+            ]
+        });
+
+        $('#level_id').on('change', function() {
+            dataUser.ajax.reload();
         });
     });
 </script>
