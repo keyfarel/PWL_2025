@@ -1,4 +1,3 @@
-{{-- resources/views/errors/403.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 
@@ -13,17 +12,14 @@
     <link rel="stylesheet" href="{{ asset('adminlte/plugins/fontawesome-free/css/all.min.css') }}">
     <!-- AdminLTE style (opsional, jika ingin tetap konsisten dengan style AdminLTE) -->
     <link rel="stylesheet" href="{{ asset('adminlte/dist/css/adminlte.min.css') }}">
-    <!-- Anda bisa menambahkan CSS kustom di bawah ini jika diperlukan -->
     <style>
         body {
             background-color: #eef1f5;
-            /* Warna latar belakang yang mirip screenshot Anda */
             font-family: 'Source Sans Pro', sans-serif;
         }
 
         .error-container {
             min-height: 100vh;
-            /* Membuat container memenuhi layar */
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -45,7 +41,6 @@
             font-size: 80px;
             font-weight: 700;
             color: #f39c12;
-            /* Warna kuning khas AdminLTE */
             margin: 0;
         }
 

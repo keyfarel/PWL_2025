@@ -27,9 +27,9 @@ class UserModel extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function level(): BelongsTo
+    public function getRole(): string
     {
-        return $this->belongsTo(LevelModel::class, 'level_id', 'level_id');
+        return $this->level->level_kode;
     }
 
     public function getRoleName(): string
@@ -40,6 +40,11 @@ class UserModel extends Authenticatable
     public function hasRole($role): bool
     {
         return $this->level->level_kode == $role;
+    }
+
+    public function level(): BelongsTo
+    {
+        return $this->belongsTo(LevelModel::class, 'level_id', 'level_id');
     }
 
     public function stok()
