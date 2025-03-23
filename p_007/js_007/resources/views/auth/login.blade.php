@@ -22,8 +22,11 @@
                 <div class="input-group mb-3">
                     <input type="password" id="password" name="password" class="form-control" placeholder="Password">
                     <div class="input-group-append">
+                        <!-- Tambahkan tombol toggle password -->
                         <div class="input-group-text">
-                            <span class="fas fa-lock"></span>
+                            <a href="#" class="toggle-password" data-target="#password">
+                                <i class="fas fa-eye"></i>
+                            </a>
                         </div>
                     </div>
                     <small id="error-password" class="error-text text-danger"></small>
@@ -40,18 +43,32 @@
                     </div>
                 </div>
             </form>
+            <!-- Link ke halaman registrasi -->
+            <p class="mb-0 mt-3">
+                Belum punya akun?<a href="{{ url('register') }}" class="text-center"> Daftar di sini</a>
+            </p>
         </div>
     </div>
 </div>
 
 @push('js')
 <script>
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
     $(document).ready(function() {
+        // Toggle password show/hide
+        $('.toggle-password').on('click', function(e) {
+            e.preventDefault();
+            var targetInput = $($(this).data('target'));
+            var icon = $(this).find('i');
+            if (targetInput.attr('type') === 'password') {
+                targetInput.attr('type', 'text');
+                icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                targetInput.attr('type', 'password');
+                icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+
+        // Validasi form login dengan jQuery Validate
         $("#form-login").validate({
             rules: {
                 username: {
@@ -83,7 +100,6 @@
                             });
                         } else {
                             $('.error-text').text('');
-                            // Jika validasi gagal, tampilkan error dari tiap field
                             if (response.msgField) {
                                 $.each(response.msgField, function(prefix, val) {
                                     $('#error-' + prefix).text(val[0]);

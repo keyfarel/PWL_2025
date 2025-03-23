@@ -9,15 +9,17 @@ use App\Http\Controllers\WelcomeController;
 use App\Http\Controllers\StokController;
 use App\Http\Controllers\BarangController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
-
-// Hapus route ini agar tidak dapat diakses secara publik
-// Route::get('/', [WelcomeController::class, 'index']);
 
 Route::group(['prefix' => 'login'], function () {
     Route::get('/', [AuthController::class, 'login'])->name('login');
     Route::post('/', [AuthController::class, 'postlogin']);
 });
+
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
+
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
