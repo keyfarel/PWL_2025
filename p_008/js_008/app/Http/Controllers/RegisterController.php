@@ -18,31 +18,31 @@ class RegisterController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'username' => 'required|unique:m_user,username',
-            'nama'     => 'required',
+            'nama' => 'required',
             'password' => 'required|min:6|confirmed',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
-                'status'   => false,
-                'message'  => 'Registrasi gagal, periksa kembali input Anda.',
-                'msgField' => $validator->errors()
+                'status' => false,
+                'message' => 'Registrasi gagal, periksa kembali input Anda.',
+                'msgField' => $validator->errors(),
             ]);
         }
 
         $user = UserModel::create([
             'level_id' => 3,
             'username' => $request->username,
-            'nama'     => $request->nama,
+            'nama' => $request->nama,
             'password' => Hash::make($request->password),
         ]);
 
         auth()->login($user);
 
         return response()->json([
-            'status'   => true,
-            'message'  => 'Registrasi berhasil! Selamat datang.',
-            'redirect' => url('/')
+            'status' => true,
+            'message' => 'Registrasi berhasil! Selamat datang.',
+            'redirect' => url('/'),
         ]);
     }
 }

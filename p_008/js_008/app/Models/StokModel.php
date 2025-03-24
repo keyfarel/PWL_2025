@@ -10,7 +10,9 @@ class StokModel extends Model
     use HasFactory;
 
     protected $table = 't_stok';
+
     protected $primaryKey = 'stok_id';
+
     public $timestamps = true;
 
     protected $fillable = [
@@ -18,7 +20,7 @@ class StokModel extends Model
         'user_id',
         'barang_id',
         'stok_tanggal',
-        'stok_jumlah'
+        'stok_jumlah',
     ];
 
     public function supplier()

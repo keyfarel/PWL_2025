@@ -13,7 +13,7 @@ class PenjualanDetailSeeder extends Seeder
         $barangIds = DB::table('m_barang')->pluck('barang_id')->toArray();
 
         if (empty($penjualanIds) || empty($barangIds)) {
-            throw new \Exception("Seeder gagal: Tidak ada data di t_penjualan atau m_barang.");
+            throw new \Exception('Seeder gagal: Tidak ada data di t_penjualan atau m_barang.');
         }
 
         $data = [];

@@ -11,7 +11,9 @@ class UserModel extends Authenticatable
     use HasFactory;
 
     protected $table = 'm_user';
+
     protected $primaryKey = 'user_id';
+
     protected $fillable = [
         'level_id',
         'username',

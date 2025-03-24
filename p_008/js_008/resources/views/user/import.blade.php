@@ -1,6 +1,4 @@
-<!-- File: resources/views/barang/import.blade.php -->
-
-<form action="{{ url('/barang/import_ajax') }}" method="POST" id="form-import" enctype="multipart/form-data">
+<form action="{{ url('/user/import_ajax') }}" method="POST" id="form-import" enctype="multipart/form-data">
     @csrf
     <div class="modal-dialog modal-md" role="document">
         <div class="modal-content">
@@ -8,7 +6,7 @@
             <!-- Header -->
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title mb-0">
-                    <i class="fa fa-upload mr-2"></i> Import Data Barang
+                    <i class="fa fa-upload mr-2"></i> Import Data User
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -25,14 +23,13 @@
                             Pastikan file Excel sesuai dengan template berikut:
                         </p>
                         <ul class="mb-2">
-                            <li>Kolom A: <strong>kategori_id</strong></li>
-                            <li>Kolom B: <strong>barang_kode</strong></li>
-                            <li>Kolom C: <strong>barang_nama</strong></li>
-                            <li>Kolom D: <strong>harga_beli</strong></li>
-                            <li>Kolom E: <strong>harga_jual</strong></li>
+                            <li>Kolom A: <strong>level_id</strong></li>
+                            <li>Kolom B: <strong>username</strong></li>
+                            <li>Kolom C: <strong>nama</strong></li>
+                            <li>Kolom D: <strong>password</strong></li>
                         </ul>
-                        <a href="{{ asset('assets/templates/template_barang.xlsx') }}"
-                            class="btn btn-sm btn-outline-info" download>
+                        <a href="{{ asset('assets/templates/template_user.xlsx') }}" class="btn btn-sm btn-outline-info"
+                            download>
                             <i class="fa fa-file-excel"></i> Download Template
                         </a>
                     </div>
@@ -40,16 +37,16 @@
 
                 <!-- File Input -->
                 <div class="form-group">
-                    <label for="file_barang" class="font-weight-bold">
+                    <label for="file_user" class="font-weight-bold">
                         File Excel (.xlsx)
                     </label>
                     <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="file_barang" name="file_barang" required>
-                        <label class="custom-file-label" for="file_barang">
+                        <input type="file" class="custom-file-input" id="file_user" name="file_user" required>
+                        <label class="custom-file-label" for="file_user">
                             Pilih file...
                         </label>
                     </div>
-                    <small id="error-file_barang" class="error-text form-text text-danger"></small>
+                    <small id="error-file_user" class="error-text form-text text-danger"></small>
                 </div>
             </div>
 
@@ -75,9 +72,10 @@
             $(this).next('.custom-file-label').addClass("selected").html(fileName);
         });
 
+        // Validasi form menggunakan jQuery Validate
         $("#form-import").validate({
             rules: {
-                file_barang: {
+                file_user: {
                     required: true,
                     extension: "xlsx"
                 }
@@ -92,7 +90,7 @@
                     contentType: false,
                     success: function(response) {
                         if (response.status) {
-                            // Jika sukses
+                            // Jika sukses, tutup modal dan tampilkan pesan
                             $('#myModal').modal('hide');
                             Swal.fire({
                                 icon: 'success',
@@ -100,10 +98,10 @@
                                 text: response.message
                             }).then(() => {
                                 location.reload();
-                                tableBarang.ajax.reload();
+                                tableUser.ajax.reload();
                             });
                         } else {
-                            // Jika terjadi error
+                            // Tampilkan error dari validasi atau proses import
                             $('.error-text').text('');
                             $.each(response.msgField, function(prefix, val) {
                                 $('#error-' + prefix).text(val[0]);

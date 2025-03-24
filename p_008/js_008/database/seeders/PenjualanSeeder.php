@@ -13,7 +13,7 @@ class PenjualanSeeder extends Seeder
         $userIds = DB::table('m_user')->pluck('user_id')->toArray();
 
         if (empty($userIds)) {
-            throw new \Exception("Seeder gagal: Tidak ada user di tabel m_user.");
+            throw new \Exception('Seeder gagal: Tidak ada user di tabel m_user.');
         }
 
         $data = [];
@@ -21,7 +21,7 @@ class PenjualanSeeder extends Seeder
             $data[] = [
                 'penjualan_id' => $i,
                 'user_id' => $userIds[array_rand($userIds)], // Ambil user yang ada
-                'pembeli' => 'Pembeli ' . $i,
+                'pembeli' => 'Pembeli '.$i,
                 'penjualan_kode' => strtoupper(Str::random(10)), // Kode unik
                 'penjualan_tanggal' => now()->subDays(rand(1, 30)), // Tanggal acak dalam 30 hari terakhir
                 'created_at' => now(),

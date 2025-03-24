@@ -10,13 +10,13 @@ class PenjualanController extends Controller
 {
     public function index()
     {
-        $breadcrumbs = (object)[
+        $breadcrumbs = (object) [
             'title' => 'Daftar Penjualan',
-            'list' => ['Home', 'Penjualan']
+            'list' => ['Home', 'Penjualan'],
         ];
 
-        $page = (object)[
-            'title' => 'Daftar penjualan'
+        $page = (object) [
+            'title' => 'Daftar penjualan',
         ];
 
         $activeMenu = 'penjualan';
@@ -35,14 +35,14 @@ class PenjualanController extends Controller
                 return $p->user ? $p->user->nama : '-';
             })
             ->addColumn('aksi', function ($p) {
-                $btn = '<button onclick="modalAction(\'' . url('/penjualan/' . $p->penjualan_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/penjualan/' . $p->penjualan_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
+                $btn = '<button onclick="modalAction(\''.url('/penjualan/'.$p->penjualan_id.'/show_ajax').'\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\''.url('/penjualan/'.$p->penjualan_id.'/delete_ajax').'\')" class="btn btn-danger btn-sm">Hapus</button> ';
+
                 return $btn;
             })
             ->rawColumns(['aksi'])
             ->make(true);
     }
-
 
     public function show_ajax($id)
     {
@@ -69,23 +69,25 @@ class PenjualanController extends Controller
             if ($penjualan) {
                 try {
                     $penjualan->delete();
+
                     return response()->json([
                         'status' => true,
-                        'message' => 'Data penjualan berhasil dihapus.'
+                        'message' => 'Data penjualan berhasil dihapus.',
                     ]);
                 } catch (\Illuminate\Database\QueryException $e) {
                     return response()->json([
                         'status' => false,
-                        'message' => 'Data penjualan gagal dihapus karena masih terkait dengan data lain.'
+                        'message' => 'Data penjualan gagal dihapus karena masih terkait dengan data lain.',
                     ]);
                 }
             } else {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Data penjualan tidak ditemukan.'
+                    'message' => 'Data penjualan tidak ditemukan.',
                 ]);
             }
         }
+
         return redirect('/');
     }
 }

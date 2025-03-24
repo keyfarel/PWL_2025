@@ -6,20 +6,20 @@ use App\Models\BarangModel;
 use App\Models\KategoriModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Yajra\DataTables\Facades\DataTables;
 
 class BarangController extends Controller
 {
     public function index()
     {
-        $breadcrumbs = (object)[
+        $breadcrumbs = (object) [
             'title' => 'Daftar Barang',
-            'list' => ['Home', 'Barang']
+            'list' => ['Home', 'Barang'],
         ];
 
-        $page = (object)[
-            'title' => 'Daftar barang dalam sistem'
+        $page = (object) [
+            'title' => 'Daftar barang dalam sistem',
         ];
 
         $activeMenu = 'barang';
@@ -60,6 +60,7 @@ class BarangController extends Controller
     public function create_ajax()
     {
         $kategori = KategoriModel::all();
+
         return view('barang.create_ajax', compact('kategori'));
     }
 
@@ -72,7 +73,7 @@ class BarangController extends Controller
                 'barang_kode' => 'required|string|max:50|unique:m_barang,barang_kode',
                 'barang_nama' => 'required|string|max:100',
                 'harga_beli' => 'required|numeric',
-                'harga_jual' => 'required|numeric'
+                'harga_jual' => 'required|numeric',
             ];
 
             $validator = Validator::make($request->all(), $rules);
@@ -81,7 +82,7 @@ class BarangController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Validasi gagal.',
-                    'msgField' => $validator->errors()
+                    'msgField' => $validator->errors(),
                 ]);
             }
 
@@ -90,20 +91,22 @@ class BarangController extends Controller
                 'barang_kode' => $request->barang_kode,
                 'barang_nama' => $request->barang_nama,
                 'harga_beli' => $request->harga_beli,
-                'harga_jual' => $request->harga_jual
+                'harga_jual' => $request->harga_jual,
             ]);
 
             return response()->json([
                 'status' => true,
-                'message' => 'Data barang berhasil disimpan.'
+                'message' => 'Data barang berhasil disimpan.',
             ]);
         }
+
         return redirect('/');
     }
 
     public function show_ajax($id)
     {
         $barang = BarangModel::with('kategori')->find($id);
+
         return view('barang.show_ajax', compact('barang'));
     }
 
@@ -112,6 +115,7 @@ class BarangController extends Controller
     {
         $barang = BarangModel::find($id);
         $kategori = KategoriModel::all();
+
         return view('barang.edit_ajax', compact('barang', 'kategori'));
     }
 
@@ -124,7 +128,7 @@ class BarangController extends Controller
                 'barang_kode' => 'required|string|max:50|unique:m_barang,barang_kode,' . $id . ',barang_id',
                 'barang_nama' => 'required|string|max:100',
                 'harga_beli' => 'required|numeric',
-                'harga_jual' => 'required|numeric'
+                'harga_jual' => 'required|numeric',
             ];
 
             $validator = Validator::make($request->all(), $rules);
@@ -132,7 +136,7 @@ class BarangController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Validasi gagal.',
-                    'msgField' => $validator->errors()
+                    'msgField' => $validator->errors(),
                 ]);
             }
 
@@ -143,20 +147,21 @@ class BarangController extends Controller
                     'barang_kode' => $request->barang_kode,
                     'barang_nama' => $request->barang_nama,
                     'harga_beli' => $request->harga_beli,
-                    'harga_jual' => $request->harga_jual
+                    'harga_jual' => $request->harga_jual,
                 ]);
 
                 return response()->json([
                     'status' => true,
-                    'message' => 'Data barang berhasil diperbarui.'
+                    'message' => 'Data barang berhasil diperbarui.',
                 ]);
             } else {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Data barang tidak ditemukan.'
+                    'message' => 'Data barang tidak ditemukan.',
                 ]);
             }
         }
+
         return redirect('/');
     }
 
@@ -164,6 +169,7 @@ class BarangController extends Controller
     public function confirm_ajax($id)
     {
         $barang = BarangModel::find($id);
+
         return view('barang.confirm_ajax', compact('barang'));
     }
 
@@ -175,23 +181,25 @@ class BarangController extends Controller
             if ($barang) {
                 try {
                     $barang->delete();
+
                     return response()->json([
                         'status' => true,
-                        'message' => 'Data barang berhasil dihapus.'
+                        'message' => 'Data barang berhasil dihapus.',
                     ]);
                 } catch (\Illuminate\Database\QueryException $e) {
                     return response()->json([
                         'status' => false,
-                        'message' => 'Data barang gagal dihapus karena masih terkait dengan data lain.'
+                        'message' => 'Data barang gagal dihapus karena masih terkait dengan data lain.',
                     ]);
                 }
             } else {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Data barang tidak ditemukan.'
+                    'message' => 'Data barang tidak ditemukan.',
                 ]);
             }
         }
+
         return redirect('/');
     }
 
@@ -204,15 +212,16 @@ class BarangController extends Controller
     {
         if ($request->ajax() || $request->wantsJson()) {
 
+            // Validasi file: harus .xlsx dengan ukuran maksimal 2MB
             $rules = [
-                'file_barang' => ['required', 'mimes:xlsx', 'max:2048']
+                'file_barang' => ['required', 'mimes:xlsx', 'max:2048'],
             ];
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Validasi Gagal',
-                    'msgField' => $validator->errors()
+                    'status'   => false,
+                    'message'  => 'Validasi Gagal.' . "\n" . 'Mohon ikuti instruksi di template.',
+                    'msgField' => $validator->errors(),
                 ]);
             }
 
@@ -224,55 +233,114 @@ class BarangController extends Controller
                 $sheet = $spreadsheet->getActiveSheet();
                 $data = $sheet->toArray(null, true, true, true);
 
+                // Pastikan ada data minimal (header + 1 baris data)
                 if (count($data) <= 1) {
                     return response()->json([
-                        'status' => false,
-                        'message' => 'Tidak ada data yang diimport'
+                        'status'  => false,
+                        'message' => 'Tidak ada data yang diimport.' . "\n" . 'Mohon ikuti instruksi di template.',
+                    ]);
+                }
+
+                // Validasi header file
+                $headerA = strtolower(str_replace(' ', '_', trim($data[1]['A'] ?? '')));
+                $headerB = strtolower(str_replace(' ', '_', trim($data[1]['B'] ?? '')));
+                $headerC = strtolower(str_replace(' ', '_', trim($data[1]['C'] ?? '')));
+                $headerD = strtolower(str_replace(' ', '_', trim($data[1]['D'] ?? '')));
+                $headerE = strtolower(str_replace(' ', '_', trim($data[1]['E'] ?? '')));
+                $expectedHeader = ['kategori_id', 'barang_kode', 'barang_nama', 'harga_beli', 'harga_jual'];
+                if (!(
+                    $headerA === $expectedHeader[0] &&
+                    $headerB === $expectedHeader[1] &&
+                    $headerC === $expectedHeader[2] &&
+                    $headerD === $expectedHeader[3] &&
+                    $headerE === $expectedHeader[4]
+                )) {
+                    return response()->json([
+                        'status'  => false,
+                        'message' => 'Header file Excel tidak sesuai. Pastikan kolom A sampai E berturut-turut: ' .
+                            implode(', ', $expectedHeader) . '.' . "\n" . 'Mohon ikuti instruksi di template.',
                     ]);
                 }
 
                 $insert = [];
-
                 foreach ($data as $rowIndex => $rowValue) {
                     if ($rowIndex == 1) {
-                        continue;
+                        continue; // Lewati header
                     }
 
-                    if (!is_numeric($rowValue['D']) || !is_numeric($rowValue['E'])) {
-                        continue;
+                    $kategoriId = trim($rowValue['A'] ?? '');
+                    $barangKode = trim($rowValue['B'] ?? '');
+                    $barangNama = trim($rowValue['C'] ?? '');
+                    $hargaBeli  = trim($rowValue['D'] ?? '');
+                    $hargaJual  = trim($rowValue['E'] ?? '');
+
+                    // Validasi: Semua kolom wajib terisi
+                    if ($kategoriId === '' || $barangKode === '' || $barangNama === '' || $hargaBeli === '' || $hargaJual === '') {
+                        return response()->json([
+                            'status'  => false,
+                            'message' => "Data pada baris {$rowIndex} tidak lengkap. Semua kolom wajib diisi." . "\n" . 'Mohon ikuti instruksi di template.',
+                        ]);
+                    }
+
+                    // Validasi: harga_beli dan harga_jual harus numeric
+                    if (!is_numeric($hargaBeli) || !is_numeric($hargaJual)) {
+                        return response()->json([
+                            'status'  => false,
+                            'message' => "Data pada baris {$rowIndex}: Nilai harga harus berupa angka." . "\n" . 'Mohon ikuti instruksi di template.',
+                        ]);
+                    }
+
+                    // Validasi foreign key: kategori_id harus ada
+                    if (!KategoriModel::where('kategori_id', $kategoriId)->exists()) {
+                        return response()->json([
+                            'status'  => false,
+                            'message' => "Data pada baris {$rowIndex}: Kategori dengan ID '{$kategoriId}' tidak ditemukan." . "\n" . 'Mohon ikuti instruksi di template.',
+                        ]);
+                    }
+
+                    // Validasi duplikasi: Cek apakah barang dengan kode yang sama sudah ada
+                    $existing = BarangModel::where('barang_kode', $barangKode)->first();
+                    if ($existing) {
+                        return response()->json([
+                            'status'  => false,
+                            'message' => "Data pada baris {$rowIndex}: Barang dengan kode '{$barangKode}' sudah ada." . "\n" . 'Mohon ikuti instruksi di template.',
+                        ]);
                     }
 
                     $insert[] = [
-                        'kategori_id' => trim($rowValue['A']),
-                        'barang_kode' => trim($rowValue['B']),
-                        'barang_nama' => trim($rowValue['C']),
-                        'harga_beli'  => (float) $rowValue['D'],
-                        'harga_jual'  => (float) $rowValue['E'],
+                        'kategori_id' => $kategoriId,
+                        'barang_kode' => $barangKode,
+                        'barang_nama' => $barangNama,
+                        'harga_beli'  => (float)$hargaBeli,
+                        'harga_jual'  => (float)$hargaJual,
                         'created_at'  => now(),
+                        'updated_at'  => now(),
                     ];
                 }
 
                 if (count($insert) > 0) {
-                    BarangModel::insertOrIgnore($insert);
+                    // Insert data ke tabel
+                    BarangModel::insert($insert);
 
                     return response()->json([
-                        'status' => true,
-                        'message' => 'Data berhasil diimport'
+                        'status'  => true,
+                        'message' => 'Data berhasil diimport',
                     ]);
                 } else {
                     return response()->json([
-                        'status' => false,
-                        'message' => 'Tidak ada data valid yang diimport.'
+                        'status'  => false,
+                        'message' => 'Tidak ada data valid yang diimport.' . "\n" . 'Mohon ikuti instruksi di template.',
                     ]);
                 }
             } catch (\Exception $e) {
                 return response()->json([
-                    'status' => false,
-                    'message' => 'Terjadi kesalahan saat memproses file: ' . $e->getMessage()
+                    'status'  => false,
+                    'message' => 'Terjadi kesalahan saat memproses file: ' . $e->getMessage() .
+                        "\n" . 'Mohon ikuti instruksi di template.',
                 ]);
             }
-        }
 
-        return redirect('/');
+            return redirect('/');
+        }
     }
 }

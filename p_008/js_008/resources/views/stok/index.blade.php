@@ -5,6 +5,9 @@
     <div class="card-header">
         <h3 class="card-title">{{ $page->title }}</h3>
         <div class="card-tools">
+            <button onclick="modalAction('{{ url('stok/import') }}')" class="btn btn-sm btn-info mt-1">
+                Import Stok
+            </button>
             <!-- Tombol untuk membuka form create stok via AJAX -->
             <button onclick="modalAction('{{ url('stok/create_ajax') }}')" class="btn btn-sm btn-success mt-1">
                 Tambah Stok

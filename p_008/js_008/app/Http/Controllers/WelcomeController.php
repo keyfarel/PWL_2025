@@ -2,18 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
 class WelcomeController extends Controller
 {
     public function index()
     {
-        $breadcrumb = (object)[
+        $breadcrumb = (object) [
             'title' => 'Selamat Datang',
-            'list' => ['Home', 'Welcome']
+            'list' => ['Home', 'Welcome'],
         ];
 
         $activeMenu = 'dashboard';
+
         return view('welcome', [
             'breadcrumbs' => $breadcrumb,
             'activeMenu' => $activeMenu]);

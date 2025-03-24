@@ -1,6 +1,6 @@
-<!-- File: resources/views/barang/import.blade.php -->
+<!-- File: resources/views/kategori/import.blade.php -->
 
-<form action="{{ url('/barang/import_ajax') }}" method="POST" id="form-import" enctype="multipart/form-data">
+<form action="{{ url('/kategori/import_ajax') }}" method="POST" id="form-import" enctype="multipart/form-data">
     @csrf
     <div class="modal-dialog modal-md" role="document">
         <div class="modal-content">
@@ -8,7 +8,7 @@
             <!-- Header -->
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title mb-0">
-                    <i class="fa fa-upload mr-2"></i> Import Data Barang
+                    <i class="fa fa-upload mr-2"></i> Import Data Kategori
                 </h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
@@ -25,13 +25,10 @@
                             Pastikan file Excel sesuai dengan template berikut:
                         </p>
                         <ul class="mb-2">
-                            <li>Kolom A: <strong>kategori_id</strong></li>
-                            <li>Kolom B: <strong>barang_kode</strong></li>
-                            <li>Kolom C: <strong>barang_nama</strong></li>
-                            <li>Kolom D: <strong>harga_beli</strong></li>
-                            <li>Kolom E: <strong>harga_jual</strong></li>
+                            <li>Kolom A: <strong>kategori_kode</strong></li>
+                            <li>Kolom B: <strong>kategori_nama</strong></li>
                         </ul>
-                        <a href="{{ asset('assets/templates/template_barang.xlsx') }}"
+                        <a href="{{ asset('assets/templates/template_kategori.xlsx') }}"
                             class="btn btn-sm btn-outline-info" download>
                             <i class="fa fa-file-excel"></i> Download Template
                         </a>
@@ -40,16 +37,16 @@
 
                 <!-- File Input -->
                 <div class="form-group">
-                    <label for="file_barang" class="font-weight-bold">
+                    <label for="file_kategori" class="font-weight-bold">
                         File Excel (.xlsx)
                     </label>
                     <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="file_barang" name="file_barang" required>
-                        <label class="custom-file-label" for="file_barang">
+                        <input type="file" class="custom-file-input" id="file_kategori" name="file_kategori" required>
+                        <label class="custom-file-label" for="file_kategori">
                             Pilih file...
                         </label>
                     </div>
-                    <small id="error-file_barang" class="error-text form-text text-danger"></small>
+                    <small id="error-file_kategori" class="error-text form-text text-danger"></small>
                 </div>
             </div>
 
@@ -77,7 +74,7 @@
 
         $("#form-import").validate({
             rules: {
-                file_barang: {
+                file_kategori: {
                     required: true,
                     extension: "xlsx"
                 }
@@ -98,10 +95,8 @@
                                 icon: 'success',
                                 title: 'Berhasil',
                                 text: response.message
-                            }).then(() => {
-                                location.reload();
-                                tableBarang.ajax.reload();
                             });
+                            dataKategori.ajax.reload(); 
                         } else {
                             // Jika terjadi error
                             $('.error-text').text('');

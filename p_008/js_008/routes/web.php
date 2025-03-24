@@ -1,15 +1,14 @@
 <?php
 
-use App\Http\Controllers\PenjualanController;
-use App\Http\Controllers\PenjualanDetailController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\LevelController;
-use App\Http\Controllers\KategoriController;
-use App\Http\Controllers\WelcomeController;
-use App\Http\Controllers\StokController;
-use App\Http\Controllers\BarangController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BarangController;
+use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\LevelController;
+use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\StokController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'login'], function () {
@@ -19,7 +18,6 @@ Route::group(['prefix' => 'login'], function () {
 
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
-
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
 
@@ -36,6 +34,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}/show_ajax', [LevelController::class, 'show_ajax']);
             Route::get('/{id}/edit_ajax', [LevelController::class, 'edit_ajax']);
             Route::put('/{id}/update_ajax', [LevelController::class, 'update_ajax']);
+            Route::get('/import', [LevelController::class, 'import']);
+            Route::post('/import_ajax', [LevelController::class, 'import_ajax']);
             Route::get('/{id}/delete_ajax', [LevelController::class, 'confirm_ajax']);
             Route::delete('/{id}/delete_ajax', [LevelController::class, 'delete_ajax']);
         });
@@ -48,6 +48,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}/show_ajax', [UserController::class, 'show_ajax'])->name('user.show_ajax');
             Route::get('/{id}/edit_ajax', [UserController::class, 'edit_ajax']);
             Route::put('/{id}/update_ajax', [UserController::class, 'update_ajax']);
+            Route::get('/import', [UserController::class, 'import']);
+            Route::post('/import_ajax', [UserController::class, 'import_ajax']);
             Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']);
             Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']);
         });
@@ -62,10 +64,11 @@ Route::middleware('auth')->group(function () {
             Route::post('/ajax', [KategoriController::class, 'store_ajax']);
             Route::get('/{id}/edit_ajax', [KategoriController::class, 'edit_ajax']);
             Route::put('/{id}/update_ajax', [KategoriController::class, 'update_ajax']);
+            Route::get('/import', [KategoriController::class, 'import']);
+            Route::post('/import_ajax', [KategoriController::class, 'import_ajax']);
             Route::get('/{id}/delete_ajax', [KategoriController::class, 'confirm_ajax']);
             Route::delete('/{id}/delete_ajax', [KategoriController::class, 'delete_ajax']);
         });
-
 
         Route::prefix('barang')->group(function () {
             Route::get('/', [BarangController::class, 'index']);
@@ -92,6 +95,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/{id}/show_ajax', [StokController::class, 'show_ajax'])->name('stok.show_ajax');
             Route::get('/{id}/edit_ajax', [StokController::class, 'edit_ajax']);
             Route::put('/{id}/update_ajax', [StokController::class, 'update_ajax']);
+            Route::get('/import', [StokController::class, 'import']);
+            Route::post('/import_ajax', [StokController::class, 'import_ajax']);
             Route::get('/{id}/delete_ajax', [StokController::class, 'confirm_ajax']);
             Route::delete('/{id}/delete_ajax', [StokController::class, 'delete_ajax']);
         });

@@ -13,6 +13,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             return redirect('/');
         }
+
         return view('auth.login');
     }
 
@@ -20,7 +21,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'username' => 'required|min:4|max:20',
-            'password' => 'required|min:6|max:20'
+            'password' => 'required|min:6|max:20',
         ]);
 
         if ($validator->fails()) {
@@ -28,9 +29,10 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => false,
                     'message' => 'Validasi gagal',
-                    'msgField' => $validator->errors()
+                    'msgField' => $validator->errors(),
                 ]);
             }
+
             return redirect('login')
                 ->withErrors($validator)
                 ->withInput();
@@ -45,18 +47,20 @@ class AuthController extends Controller
                 return response()->json([
                     'status' => true,
                     'message' => 'Login Berhasil',
-                    'redirect' => url('/')
+                    'redirect' => url('/'),
                 ]);
             }
+
             return redirect()->intended('/');
         }
 
         if ($request->ajax() || $request->wantsJson()) {
             return response()->json([
                 'status' => false,
-                'message' => 'Login Gagal. Username atau password salah.'
+                'message' => 'Login Gagal. Username atau password salah.',
             ]);
         }
+
         return redirect('login')->with('error', 'Username atau password salah.');
     }
 
@@ -65,6 +69,7 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('login');
     }
 }

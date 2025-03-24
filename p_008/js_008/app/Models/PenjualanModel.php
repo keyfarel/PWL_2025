@@ -10,7 +10,9 @@ class PenjualanModel extends Model
     use HasFactory;
 
     protected $table = 't_penjualan';
+
     protected $primaryKey = 'penjualan_id';
+
     public $timestamps = true;
 
     protected $fillable = [
@@ -18,7 +20,7 @@ class PenjualanModel extends Model
         'pembeli',
         'penjualan_kode',
         'penjualan_tanggal',
-        'total_harga'
+        'total_harga',
     ];
 
     public function user()
