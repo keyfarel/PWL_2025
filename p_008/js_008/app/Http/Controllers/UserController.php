@@ -11,6 +11,8 @@ use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Illuminate\Support\Facades\Hash;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 
 class UserController extends Controller
@@ -35,6 +37,67 @@ class UserController extends Controller
             'level' => $level,
             'activeMenu' => $activeMenu,
         ]);
+    }
+
+    public function edit_profile()
+    {
+        $user = Auth::user();
+        $page = (object)[
+            'title' => 'Edit Profil'
+        ];
+        $breadcrumbs = (object)[
+            'title' => 'Edit Profil',
+            'list'  => ['Home', 'Edit Profil']
+        ];
+
+        return view('user.edit_profile', compact('user', 'page', 'breadcrumbs'));
+    }
+
+    public function update_profile(Request $request, $id)
+    {
+        // Ambil data user
+        $user = UserModel::findOrFail($id);
+
+        // Validasi data
+        $rules = [
+            'username' => 'required|string|min:3|max:20|unique:m_user,username,' . $id . ',user_id',
+            'nama'     => 'required|string|max:100',
+            'photo'    => 'nullable|image|mimes:jpeg,jpg,png,gif|max:2048',
+        ];
+        if ($request->filled('password')) {
+            $rules['password'] = 'min:6|max:20';
+        }
+        $validated = $request->validate($rules);
+
+        // Update username, nama, dan password (jika diisi)
+        $user->username = $validated['username'];
+        $user->nama     = $validated['nama'];
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        // Tangani file foto baru
+        if ($request->hasFile('photo') && $request->file('photo')->isValid()) {
+            // Hapus foto lama jika ada, menggunakan disk 'public'
+            if ($user->photo && Storage::disk('public')->exists('images/profiles/' . $user->photo)) {
+                Storage::disk('public')->delete('images/profiles/' . $user->photo);
+            }
+
+            // Buat nama file baru yang unik
+            $file     = $request->file('photo');
+            $filename = uniqid() . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+            // Simpan foto baru ke folder 'images/profiles' pada disk public
+            $file->storeAs('images/profiles', $filename, 'public');
+
+            // Update kolom photo di database
+            $user->photo = $filename;
+        }
+
+        // Simpan perubahan ke database
+        $user->save();
+
+        return response()->json(['success' => 'Data user berhasil diperbarui.']);
     }
 
     public function list(Request $request)

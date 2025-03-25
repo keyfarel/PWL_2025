@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('username', 20)->unique();
             $table->string('nama', 100);
             $table->string('password');
+            $table->string('photo')->nullable()->default(null);
             $table->timestamps();
 
             $table->foreignId('level_id')

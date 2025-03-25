@@ -18,8 +18,12 @@ Route::group(['prefix' => 'login'], function () {
 
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.post');
-
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth');
+
+Route::prefix('user')->group(function () {
+    Route::get('/edit_profile', [UserController::class, 'edit_profile'])->name('edit_profile');
+    Route::put('/{id}/update_profil}', [UserController::class, 'update_profile'])->name('update_profil');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [WelcomeController::class, 'index']);
@@ -93,7 +97,7 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::middleware(['authorize:ADM,STF'])->group(function () {
+    Route::middleware(['authorize:MNG,ADM,STF'])->group(function () {
 
         Route::prefix('stok')->group(function () {
             Route::get('/', [StokController::class, 'index']);
@@ -112,7 +116,7 @@ Route::middleware('auth')->group(function () {
         });
     });
 
-    Route::middleware(['authorize:ADM,KSR'])->group(function () {
+    Route::middleware(['authorize:MNG,ADM,KSR'])->group(function () {
 
         Route::prefix('penjualan')->group(function () {
             Route::get('/', [PenjualanController::class, 'index']);
