@@ -11,6 +11,9 @@
             <a href="{{ url('/user/export_excel') }}" class="btn btn-sm btn-primary mt-1">
                 <i class="fa fa-file-excel mr-1"></i>Export Pengguna
             </a>
+            <a href="{{ url('/user/export_pdf') }}" class="btn btn-sm btn-warning mt-1">
+                <i class="fa fa-file-pdf mr-1"></i> Export pengguna
+            </a>
             <button onclick="modalAction('{{ url('user/create_ajax') }}' )" class="btn btn-sm btn-success mt-1">
                 Tambah Pengguna
             </button>

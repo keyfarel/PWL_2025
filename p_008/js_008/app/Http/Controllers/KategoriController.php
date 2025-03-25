@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class KategoriController extends Controller
 {
@@ -55,7 +56,6 @@ class KategoriController extends Controller
         return view('kategori.create_ajax');
     }
 
-    // Menyimpan data kategori via AJAX
     public function store_ajax(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
@@ -346,5 +346,21 @@ class KategoriController extends Controller
         // Output ke browser
         $writer->save('php://output');
         exit;
+    }
+
+    public function export_pdf()
+    {
+        // Ambil data kategori
+        $kategori = KategoriModel::select('kategori_kode', 'kategori_nama')
+            ->orderBy('kategori_kode', 'ASC')
+            ->get();
+
+        // Muat view export PDF (sesuaikan nama file view jika diperlukan)
+        $pdf = Pdf::loadView('kategori.export_pdf', ['kategori' => $kategori]);
+
+        $pdf->setPaper('a4', 'portrait');       // Set ukuran kertas dan orientasi
+        $pdf->setOption("isRemoteEnabled", true); // Aktifkan remote jika ada gambar dari URL
+
+        return $pdf->stream('Data Kategori ' . date('Y-m-d H:i:s') . '.pdf');
     }
 }

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class StokController extends Controller
 {
@@ -419,5 +420,20 @@ class StokController extends Controller
         // Tampilkan file Excel untuk diunduh
         $writer->save('php://output');
         exit;
+    }
+
+    public function export_pdf()
+    {
+        // Ambil data stok beserta relasi supplier, user, dan barang
+        $stok = StokModel::with(['supplier', 'user', 'barang'])
+            ->orderBy('stok_tanggal', 'desc')
+            ->get();
+
+        // Muat view export PDF (pastikan view "stok.export_pdf" sudah dibuat)
+        $pdf = Pdf::loadView('stok.export_pdf', ['stok' => $stok]);
+        $pdf->setPaper('a4', 'portrait');       // Set ukuran kertas A4 dan orientasi portrait
+        $pdf->setOption("isRemoteEnabled", true); // Aktifkan opsi remote jika ada gambar dari URL
+
+        return $pdf->stream('Data Stok ' . date('Y-m-d H:i:s') . '.pdf');
     }
 }

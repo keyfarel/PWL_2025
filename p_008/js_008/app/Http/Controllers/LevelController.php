@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LevelController extends Controller
 {
@@ -174,9 +175,6 @@ class LevelController extends Controller
         return view('level.import');
     }
 
-    /**
-     * Proses import data level dari file Excel.
-     */
     public function import_ajax(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
@@ -338,5 +336,21 @@ class LevelController extends Controller
         // Output file ke browser
         $writer->save('php://output');
         exit;
+    }
+
+    public function export_pdf()
+    {
+        // Ambil data level yang akan diexport
+        $level = LevelModel::select('level_kode', 'level_nama')
+            ->orderBy('level_kode', 'ASC')
+            ->get();
+
+        // Muat view export PDF (sesuaikan nama file view jika diperlukan)
+        $pdf = Pdf::loadView('level.export_pdf', ['level' => $level]);
+
+        $pdf->setPaper('a4', 'portrait');       // Set ukuran kertas dan orientasi
+        $pdf->setOption("isRemoteEnabled", true); // Aktifkan remote jika ada gambar dari URL
+
+        return $pdf->stream('Data Level ' . date('Y-m-d H:i:s') . '.pdf');
     }
 }

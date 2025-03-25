@@ -10,6 +10,7 @@ use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Illuminate\Support\Facades\Hash;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class UserController extends Controller
@@ -385,5 +386,21 @@ class UserController extends Controller
         // Output file Excel ke browser
         $writer->save('php://output');
         exit;
+    }
+
+    public function export_pdf()
+    {
+        // Ambil data user beserta relasi level
+        $users = UserModel::with('level')->orderBy('username', 'asc')->get();
+
+        // Muat view export PDF dengan data user
+        $pdf = Pdf::loadView('user.export_pdf', ['users' => $users]);
+
+        // Atur ukuran kertas dan orientasi
+        $pdf->setPaper('a4', 'portrait');
+        // Aktifkan opsi remote jika ada gambar dari URL
+        $pdf->setOption("isRemoteEnabled", true);
+
+        return $pdf->stream('Data User ' . date('Y-m-d H:i:s') . '.pdf');
     }
 }

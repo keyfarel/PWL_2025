@@ -7,6 +7,7 @@ use App\Models\KategoriModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Yajra\DataTables\Facades\DataTables;
 
 class BarangController extends Controller
@@ -54,9 +55,6 @@ class BarangController extends Controller
             ->make(true);
     }
 
-    // === AJAX Methods ===
-
-    // Menampilkan form create barang via AJAX
     public function create_ajax()
     {
         $kategori = KategoriModel::all();
@@ -64,7 +62,6 @@ class BarangController extends Controller
         return view('barang.create_ajax', compact('kategori'));
     }
 
-    // Menyimpan data barang via AJAX
     public function store_ajax(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
@@ -110,7 +107,6 @@ class BarangController extends Controller
         return view('barang.show_ajax', compact('barang'));
     }
 
-    // Menampilkan form edit barang via AJAX
     public function edit_ajax($id)
     {
         $barang = BarangModel::find($id);
@@ -119,7 +115,6 @@ class BarangController extends Controller
         return view('barang.edit_ajax', compact('barang', 'kategori'));
     }
 
-    // Memperbarui data barang via AJAX
     public function update_ajax(Request $request, $id)
     {
         if ($request->ajax() || $request->wantsJson()) {
@@ -165,7 +160,6 @@ class BarangController extends Controller
         return redirect('/');
     }
 
-    // Menampilkan modal konfirmasi hapus barang via AJAX
     public function confirm_ajax($id)
     {
         $barang = BarangModel::find($id);
@@ -173,7 +167,6 @@ class BarangController extends Controller
         return view('barang.confirm_ajax', compact('barang'));
     }
 
-    // Menghapus data barang via AJAX
     public function delete_ajax(Request $request, $id)
     {
         if ($request->ajax() || $request->wantsJson()) {
@@ -406,5 +399,21 @@ class BarangController extends Controller
         // Tampilkan file Excel untuk diunduh
         $writer->save('php://output');
         exit;
+    }
+
+    public function export_pdf()
+    {
+        $barang = BarangModel::select('kategori_id', 'barang_kode', 'barang_nama', 'harga_beli', 'harga_jual')
+            ->orderBy('kategori_id')
+            ->orderBy('barang_kode')
+            ->with('kategori')
+            ->get();
+
+
+        $pdf = Pdf::loadView('barang.export_pdf', ['barang' => $barang]);
+        $pdf->setPaper('a4', 'portrait');
+        $pdf->setOption("isRemoteEnabled", true);
+
+        return $pdf->stream('Data Barang ' . date('Y-m-d H:i:s') . '.pdf');
     }
 }
