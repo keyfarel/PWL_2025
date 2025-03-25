@@ -6,9 +6,11 @@
         <h3 class="card-title">{{ $page->title }}</h3>
         <div class="card-tools">
             <button onclick="modalAction('{{ url('barang/import') }}')" class="btn btn-sm btn-info mt-1">
-                Import Barang
+                <i class="fa fa-file-excel mr-1"></i>Import Barang
             </button>
-            <!-- Tombol untuk membuka form create barang via AJAX -->
+            <a href="{{ url('/barang/export_excel') }}" class="btn btn-sm btn-primary mt-1">
+                <i class="fa fa-file-excel mr-1"></i>Export Barang
+            </a>
             <button onclick="modalAction('{{ url('barang/create_ajax') }}')" class="btn btn-sm btn-success mt-1">
                 Tambah Barang
             </button>
