@@ -6,8 +6,11 @@
         <h3 class="card-title">{{ $page->title }}</h3>
         <div class="card-tools">
             <button onclick="modalAction('{{ url('stok/import') }}')" class="btn btn-sm btn-info mt-1">
-                Import Stok
+                <i class="fa fa-file-excel mr-1"></i>Import Stok
             </button>
+            <a href="{{ url('/stok/export_excel') }}" class="btn btn-sm btn-primary mt-1">
+                <i class="fa fa-file-excel mr-1"></i>Export Stok
+            </a>
             <!-- Tombol untuk membuka form create stok via AJAX -->
             <button onclick="modalAction('{{ url('stok/create_ajax') }}')" class="btn btn-sm btn-success mt-1">
                 Tambah Stok

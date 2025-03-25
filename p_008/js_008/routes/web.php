@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
             Route::put('/{id}/update_ajax', [UserController::class, 'update_ajax']);
             Route::get('/import', [UserController::class, 'import']);
             Route::post('/import_ajax', [UserController::class, 'import_ajax']);
+            Route::get('/export_excel', [UserController::class, 'export_excel']);
             Route::get('/{id}/delete_ajax', [UserController::class, 'confirm_ajax']);
             Route::delete('/{id}/delete_ajax', [UserController::class, 'delete_ajax']);
         });
@@ -67,6 +68,7 @@ Route::middleware('auth')->group(function () {
             Route::put('/{id}/update_ajax', [KategoriController::class, 'update_ajax']);
             Route::get('/import', [KategoriController::class, 'import']);
             Route::post('/import_ajax', [KategoriController::class, 'import_ajax']);
+            Route::get('/export_excel', [KategoriController::class, 'export_excel']);
             Route::get('/{id}/delete_ajax', [KategoriController::class, 'confirm_ajax']);
             Route::delete('/{id}/delete_ajax', [KategoriController::class, 'delete_ajax']);
         });
@@ -99,6 +101,7 @@ Route::middleware('auth')->group(function () {
             Route::put('/{id}/update_ajax', [StokController::class, 'update_ajax']);
             Route::get('/import', [StokController::class, 'import']);
             Route::post('/import_ajax', [StokController::class, 'import_ajax']);
+            Route::get('/export_excel', [StokController::class, 'export_excel']);
             Route::get('/{id}/delete_ajax', [StokController::class, 'confirm_ajax']);
             Route::delete('/{id}/delete_ajax', [StokController::class, 'delete_ajax']);
         });

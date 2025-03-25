@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class StokController extends Controller
 {
@@ -352,5 +353,71 @@ class StokController extends Controller
 
             return redirect('/');
         }
+    }
+
+    public function export_excel()
+    {
+        // Ambil data stok beserta relasi (pastikan relasi sudah didefinisikan di model StokModel)
+        $stok = StokModel::with(['supplier', 'user', 'barang'])
+            ->orderBy('stok_tanggal', 'desc')
+            ->get();
+
+        // Buat objek Spreadsheet baru
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set header kolom
+        $sheet->setCellValue('A1', 'No');
+        $sheet->setCellValue('B1', 'Supplier');
+        $sheet->setCellValue('C1', 'User');
+        $sheet->setCellValue('D1', 'Barang');
+        $sheet->setCellValue('E1', 'Stok Jumlah');
+        $sheet->setCellValue('F1', 'Stok Tanggal');
+
+        // Buat header bold
+        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
+
+        // Isi data stok
+        $no = 1;
+        $row = 2;
+        foreach ($stok as $s) {
+            $sheet->setCellValue('A' . $row, $no);
+            // Pastikan untuk menyesuaikan field nama supplier sesuai dengan model SupplierModel Anda (misalnya: nama_supplier)
+            $sheet->setCellValue('B' . $row, $s->supplier ? $s->supplier->nama_supplier : '');
+            // Untuk user, gunakan field nama, sesuai dengan model UserModel
+            $sheet->setCellValue('C' . $row, $s->user ? $s->user->nama : '');
+            // Untuk barang, gunakan field barang_nama, sesuai dengan model BarangModel
+            $sheet->setCellValue('D' . $row, $s->barang ? $s->barang->barang_nama : '');
+            $sheet->setCellValue('E' . $row, $s->stok_jumlah);
+            $sheet->setCellValue('F' . $row, $s->stok_tanggal);
+            $no++;
+            $row++;
+        }
+
+        // Set auto-size untuk kolom A sampai F
+        foreach (range('A', 'F') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        }
+
+        // Set judul sheet
+        $sheet->setTitle('Data Stok');
+
+        // Buat writer untuk file Excel
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $filename = 'Data Stok ' . date('Y-m-d H:i:s') . '.xlsx';
+
+        // Atur header HTTP untuk file download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
+
+        // Tampilkan file Excel untuk diunduh
+        $writer->save('php://output');
+        exit;
     }
 }

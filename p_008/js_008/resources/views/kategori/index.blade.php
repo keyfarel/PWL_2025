@@ -6,8 +6,11 @@
         <h3 class="card-title">{{ $page->title }}</h3>
         <div class="card-tools">
             <button onclick="modalAction('{{ url('kategori/import') }}')" class="btn btn-sm btn-info mt-1">
-                Import Kategori
+                <i class="fa fa-file-excel mr-1"></i>Import Kategori
             </button>
+            <a href="{{ url('/kategori/export_excel') }}" class="btn btn-sm btn-primary mt-1">
+                <i class="fa fa-file-excel mr-1"></i>Export Kategori
+            </a>
             <button onclick="modalAction('{{ url('kategori/create_ajax') }}')" class="btn btn-sm btn-success mt-1">
                 Tambah Kategori
             </button>
