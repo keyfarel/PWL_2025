@@ -49,7 +49,7 @@
 
         <!-- Dropdown Menu untuk Profil dan Logout -->
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle d-flex align-items-center" data-toggle="dropdown" href="#" role="button"
+            <a class="nav-link d-flex align-items-center" data-toggle="dropdown" href="#" role="button"
                 aria-haspopup="true" aria-expanded="false">
                 @if(Auth::user()->photo)
                 <!-- Jika user punya foto -->

@@ -26,8 +26,7 @@ class PenjualanController extends Controller
 
     public function list(Request $request)
     {
-        $penjualan = PenjualanModel::select('penjualan_id', 'penjualan_kode', 'total_harga', 'pembeli', 'penjualan_tanggal', 'user_id')
-            ->with('user');
+        $penjualan = PenjualanModel::select('penjualan_id', 'penjualan_kode', 'total_harga', 'pembeli', 'penjualan_tanggal', 'user_id')->with('user');
 
         return DataTables::of($penjualan)
             ->addIndexColumn()
@@ -35,8 +34,8 @@ class PenjualanController extends Controller
                 return $p->user ? $p->user->nama : '-';
             })
             ->addColumn('aksi', function ($p) {
-                $btn = '<button onclick="modalAction(\''.url('/penjualan/'.$p->penjualan_id.'/show_ajax').'\')" class="btn btn-info btn-sm">Detail</button> ';
-                $btn .= '<button onclick="modalAction(\''.url('/penjualan/'.$p->penjualan_id.'/delete_ajax').'\')" class="btn btn-danger btn-sm">Hapus</button> ';
+                $btn = '<button onclick="modalAction(\'' . url('/penjualan/' . $p->penjualan_id . '/show_ajax') . '\')" class="btn btn-info btn-sm">Detail</button> ';
+                $btn .= '<button onclick="modalAction(\'' . url('/penjualan/' . $p->penjualan_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
 
                 return $btn;
             })

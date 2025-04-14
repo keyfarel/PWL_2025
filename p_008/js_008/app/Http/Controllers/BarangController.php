@@ -261,6 +261,16 @@ class BarangController extends Controller
                         continue; // Lewati header
                     }
 
+                    if (
+                        empty(trim($rowValue['A'] ?? '')) &&
+                        empty(trim($rowValue['B'] ?? '')) &&
+                        empty(trim($rowValue['C'] ?? '')) &&
+                        empty(trim($rowValue['D'] ?? '')) &&
+                        empty(trim($rowValue['E'] ?? ''))
+                    ) {
+                        continue;
+                    }
+
                     $kategoriId = trim($rowValue['A'] ?? '');
                     $barangKode = trim($rowValue['B'] ?? '');
                     $barangNama = trim($rowValue['C'] ?? '');

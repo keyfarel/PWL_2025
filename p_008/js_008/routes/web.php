@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'login'], function () {
     Route::get('/', [AuthController::class, 'login'])->name('login');
-    Route::post('/', [AuthController::class, 'postlogin']);
+    Route::post('/', [AuthController::class, 'postlogin'])->middleware('throttle:login-limit')->name('login.post');
 });
 
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');

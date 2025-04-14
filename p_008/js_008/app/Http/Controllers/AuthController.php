@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Cache\RateLimiting\Limiter;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -33,12 +36,26 @@ class AuthController extends Controller
                 ]);
             }
 
-            return redirect('login')
-                ->withErrors($validator)
-                ->withInput();
+            return redirect('login')->withErrors($validator)->withInput();
         }
 
         $credentials = $request->only('username', 'password');
+
+        // Mengecek apakah IP sudah melebihi batas limit
+        if (RateLimiter::tooManyAttempts('login-limit|' . $request->ip(), 5)) {
+            // Dapatkan waktu reset limit
+            $secondsLeft = RateLimiter::availableIn('login-limit|' . $request->ip());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Terlalu banyak percobaan login. Coba lagi setelah ' . $secondsLeft . ' detik.',
+                    'seconds_left' => $secondsLeft,
+                ]);
+            }
+
+            return redirect('login')->with('error', 'Terlalu banyak percobaan login. Coba lagi setelah ' . $secondsLeft . ' detik.');
+        }
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
