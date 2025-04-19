@@ -12,6 +12,6 @@ if (! function_exists('format_ribuan')) {
     function format_ribuan($angka)
     {
         if ($angka === null) return '-';
-        return number_format($angka, 0, ',', '.'); // format ribuan dengan titik
+        return number_format($angka, 0, ',', '.');
     }
 }

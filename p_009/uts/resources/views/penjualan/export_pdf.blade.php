@@ -72,54 +72,73 @@
         .border-all td {
             border: 1px solid;
         }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .grand-total {
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Header Lembaga -->
     <table class="border-bottom-header">
         <tr>
-            <td width="15%" class="text-center"><img src="{{ public_path('assets/images/polinema-bw.png') }}"
-                    class="image">
+            <td width="15%" class="text-center">
+                <img src="{{ public_path('assets/images/polinema-bw.png') }}" class="image">
             </td>
-
             <td width="85%">
                 <span class="text-center d-block font-11 font-bold mb-1">KEMENTERIAN PENDIDIKAN, KEBUDAYAAN, RISET, DAN
                     TEKNOLOGI</span>
-
                 <span class="text-center d-block font-13 font-bold mb-1">POLITEKNIK NEGERI MALANG</span>
-
                 <span class="text-center d-block font-10">Jl. Soekarno-Hatta No. 9 Malang 65141</span>
-
                 <span class="text-center d-block font-10">Telepon (0341) 404424 Pes. 101-105, 0341-404420, Fax. (0341)
                     404420</span>
-
                 <span class="text-center d-block font-10">Laman: www.polinema.ac.id</span>
             </td>
         </tr>
     </table>
-    <h3 class="text-center">LAPORAN DATA STOK</h3>
-    <table class="border-all">
+
+    <!-- Judul -->
+    <h3 class="text-center">LAPORAN DATA PENJUALAN</h3>
+
+    <!-- Tabel Penjualan -->
+    <table class="border-all font-11">
         <thead>
             <tr>
                 <th class="text-center">No</th>
-                <th>Supplier</th>
+                <th>Kode</th>
+                <th>Pembeli</th>
+                <th class="text-center">Tanggal</th>
                 <th>User</th>
-                <th>Barang</th>
-                <th class="text-right">Stok Jumlah</th>
-                <th class="text-center">Stok Tanggal</th>
+                <th class="text-center">Total Harga</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($stok as $s)
+            @php
+            $grandTotal = 0;
+            @endphp
+            @foreach($penjualan as $p)
+            @php
+            $grandTotal += $p->total_harga;
+            @endphp
             <tr>
                 <td class="text-center">{{ $loop->iteration }}</td>
-                <td>{{ $s->supplier ? $s->supplier->nama_supplier : '-' }}</td>
-                <td>{{ $s->user ? $s->user->nama : '-' }}</td>
-                <td>{{ $s->barang ? $s->barang->barang_nama : '-' }}</td>
-                <td class="text-right">{{ $s->stok_jumlah }}</td>
-                <td class="text-center">{{ $s->stok_tanggal }}</td>
+                <td>{{ $p->penjualan_kode }}</td>
+                <td>{{ $p->pembeli }}</td>
+                <td class="text-center">{{ \Carbon\Carbon::parse($p->penjualan_tanggal)->format('Y-m-d') }}</td>
+                <td>{{ $p->user->nama ?? '-' }}</td>
+                <td class="text-center">@rupiah($p->total_harga)</td>
             </tr>
             @endforeach
+            <!-- Total Keseluruhan -->
+            <tr>
+                <th colspan="5" class="text-left">Total Keseluruhan</th>
+                <th class="grand-total">@rupiah($grandTotal)</th>
+            </tr>
         </tbody>
     </table>
 </body>

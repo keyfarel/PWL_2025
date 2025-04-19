@@ -139,6 +139,8 @@ Route::middleware('auth')->group(function () {
             Route::get('/', [PenjualanController::class, 'index']);
             Route::post('/list', [PenjualanController::class, 'list'])->name('penjualan.list');
             Route::get('/{id}/show_ajax', [PenjualanController::class, 'show_ajax']);
+            Route::get('/export_pdf', [PenjualanController::class, 'export_pdf']);
+            Route::get('/export_excel', [PenjualanController::class, 'export_excel']);
             Route::get('/{id}/delete_ajax', [PenjualanController::class, 'confirm_ajax']);
             Route::delete('/{id}/delete_ajax', [PenjualanController::class, 'delete_ajax']);
         });
