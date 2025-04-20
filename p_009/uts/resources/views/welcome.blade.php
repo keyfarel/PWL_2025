@@ -43,10 +43,17 @@
 
         {{-- Grafik --}}
         <div class="card">
-            <div class="card-header bg-secondary text-white">
-                <h3 class="card-title">
-                    <i class="fas fa-chart-bar mr-1"></i> Grafik Barang Masuk vs Terjual
+            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                <h3 class="card-title m-0 d-flex align-items-center">
+                    <i class="fas fa-chart-bar mr-2"></i> Grafik Barang Masuk vs Terjual
                 </h3>
+                <div class="ml-auto d-flex align-items-center">
+                    <label for="filterTipe" class="mb-0 mr-2">Filter:</label>
+                    <select id="filterTipe" class="form-control form-control-sm">
+                        <option value="barang" selected>Barang</option>
+                        <option value="kategori">Kategori</option>
+                    </select>
+                </div>
             </div>
             <div class="card-body">
                 <div class="chart-container" style="position: relative; width: 100%; height: 300px;">
@@ -54,6 +61,7 @@
                 </div>
             </div>
         </div>
+
 
         {{-- Tombol Lihat Detail --}}
         <div class="text-center mt-4">
@@ -70,21 +78,34 @@
 @push('js')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
 <script>
+    const dataBarang = {
+        labels: {!! json_encode($ringkasan->pluck('barang_nama')) !!},
+        masuk: {!! json_encode($ringkasan->pluck('total_masuk')) !!},
+        terjual: {!! json_encode($ringkasan->pluck('total_terjual')) !!}
+    };
+
+    const dataKategori = {
+        labels: {!! json_encode($kategoriRingkasan->pluck('kategori_nama')) !!},
+        masuk: {!! json_encode($kategoriRingkasan->pluck('total_masuk')) !!},
+        terjual: {!! json_encode($kategoriRingkasan->pluck('total_terjual')) !!}
+    };
+
     const ctx = document.getElementById('stokChart').getContext('2d');
     const stokChart = new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: {!! json_encode($ringkasan->pluck('barang_nama')) !!},
+            labels: [],
             datasets: [
                 {
                     label: 'Barang Masuk',
-                    data: {!! json_encode($ringkasan->pluck('total_masuk')) !!},
+                    data: [],
                     backgroundColor: 'rgba(54, 162, 235, 0.7)'
                 },
                 {
                     label: 'Barang Terjual',
-                    data: {!! json_encode($ringkasan->pluck('total_terjual')) !!},
+                    data: [],
                     backgroundColor: 'rgba(255, 99, 132, 0.7)'
                 }
             ]
@@ -95,9 +116,7 @@
             plugins: {
                 legend: {
                     labels: {
-                        font: {
-                            size: 10
-                        }
+                        font: { size: 10 }
                     }
                 },
                 datalabels: {
@@ -119,6 +138,23 @@
             }
         },
         plugins: [ChartDataLabels]
+    });
+
+    function updateChartData(type) {
+        const source = type === 'kategori' ? dataKategori : dataBarang;
+
+        stokChart.data.labels = source.labels;
+        stokChart.data.datasets[0].data = source.masuk;
+        stokChart.data.datasets[1].data = source.terjual;
+        stokChart.update();
+    }
+
+    document.getElementById('filterTipe').addEventListener('change', function () {
+        updateChartData(this.value);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateChartData(document.getElementById('filterTipe').value);
     });
 </script>
 @endpush
