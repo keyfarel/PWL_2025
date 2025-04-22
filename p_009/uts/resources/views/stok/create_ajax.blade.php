@@ -15,7 +15,7 @@
                     <select name="supplier_id" id="supplier_id" class="form-control" required>
                         <option value="">- Pilih Supplier -</option>
                         @foreach($suppliers as $supplier)
-                            <option value="{{ $supplier->supplier_id }}">{{ $supplier->supplier_nama }}</option>
+                        <option value="{{ $supplier->supplier_id }}">{{ $supplier->supplier_nama }}</option>
                         @endforeach
                     </select>
                     <small id="error-supplier_id" class="error-text form-text text-danger"></small>
@@ -23,21 +23,18 @@
                 <!-- Pilih User -->
                 <div class="form-group">
                     <label>User</label>
-                    <select name="user_id" id="user_id" class="form-control" required>
-                        <option value="">- Pilih User -</option>
-                        @foreach($users as $user)
-                            <option value="{{ $user->user_id }}">{{ $user->nama }}</option>
-                        @endforeach
-                    </select>
+                    <p class="form-control-plaintext mb-1">{{ auth()->user()->level->level_nama }}</p>
+                    <input type="hidden" name="user_id" value="{{ auth()->user()->user_id }}">
                     <small id="error-user_id" class="error-text form-text text-danger"></small>
                 </div>
+
                 <!-- Pilih Barang -->
                 <div class="form-group">
                     <label>Barang</label>
                     <select name="barang_id" id="barang_id" class="form-control" required>
                         <option value="">- Pilih Barang -</option>
                         @foreach($barangs as $barang)
-                            <option value="{{ $barang->barang_id }}">{{ $barang->barang_nama }}</option>
+                        <option value="{{ $barang->barang_id }}">{{ $barang->barang_nama }}</option>
                         @endforeach
                     </select>
                     <small id="error-barang_id" class="error-text form-text text-danger"></small>
@@ -45,7 +42,8 @@
                 <!-- Input Tanggal Stok -->
                 <div class="form-group">
                     <label>Tanggal Stok</label>
-                    <input type="date" name="stok_tanggal" id="stok_tanggal" class="form-control" required>
+                    <input type="date" name="stok_tanggal" id="stok_tanggal" class="form-control"
+                        value="{{ now()->toDateString() }}" required>
                     <small id="error-stok_tanggal" class="error-text form-text text-danger"></small>
                 </div>
                 <!-- Input Jumlah Stok -->

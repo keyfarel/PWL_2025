@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Models\StokModel;
-use App\Models\PenjualanDetailModel;
 use App\Models\KategoriModel;
 use App\Models\BarangModel;
+use App\Models\PenjualanDetailModel;
 use Illuminate\Support\Facades\DB;
 
 class WelcomeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Data untuk breadcrumbs dan menu aktif
         $breadcrumb = (object) [
@@ -20,12 +21,21 @@ class WelcomeController extends Controller
 
         $activeMenu = 'dashboard';
 
-        // Ambil data stok masuk per barang
+        // Ambil filter tahun dan bulan dari request
+        $tahun = $request->input('tahun', date('Y')); // Default tahun adalah tahun sekarang
+        $bulan = $request->input('bulan', date('m')); // Default bulan adalah bulan sekarang
+
+        // Ambil data stok masuk per barang dengan filter tahun dan bulan
         $stokMasuk = StokModel::select('barang_id', DB::raw('SUM(stok_jumlah) as total_masuk'))
+            ->whereYear('stok_tanggal', $tahun)
+            ->whereMonth('stok_tanggal', $bulan)
             ->groupBy('barang_id');
 
-        // Ambil data stok terjual per barang
+        // Ambil data stok terjual per barang dengan filter tahun dan bulan
         $stokTerjual = PenjualanDetailModel::select('barang_id', DB::raw('SUM(jumlah) as total_terjual'))
+            ->join('t_penjualan as penjualan', 'penjualan.penjualan_id', '=', 't_penjualan_detail.penjualan_id')
+            ->whereYear('penjualan.penjualan_tanggal', $tahun)
+            ->whereMonth('penjualan.penjualan_tanggal', $bulan)
             ->groupBy('barang_id');
 
         // Gabungkan data ke dalam tabel barang
@@ -45,7 +55,7 @@ class WelcomeController extends Controller
             })
             ->get();
 
-        //kategori ringkasan
+        // Kategori ringkasan dengan filter tahun dan bulan
         $kategoriRingkasan = BarangModel::join('m_kategori as k', 'm_barang.kategori_id', '=', 'k.kategori_id')
             ->leftJoinSub($stokMasuk, 'masuk', function ($join) {
                 $join->on('m_barang.barang_id', '=', 'masuk.barang_id');
@@ -67,6 +77,8 @@ class WelcomeController extends Controller
             'activeMenu' => $activeMenu,
             'ringkasan' => $ringkasan,
             'kategoriRingkasan' => $kategoriRingkasan,
+            'tahun' => $tahun,
+            'bulan' => $bulan
         ]);
     }
 }

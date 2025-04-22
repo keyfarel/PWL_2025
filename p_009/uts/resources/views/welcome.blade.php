@@ -47,13 +47,55 @@
                 <h3 class="card-title m-0 d-flex align-items-center">
                     <i class="fas fa-chart-bar mr-2"></i> Grafik Barang Masuk vs Terjual
                 </h3>
-                <div class="ml-auto d-flex align-items-center">
+                {{-- <div class="ml-auto d-flex align-items-center">
                     <label for="filterTipe" class="mb-0 mr-2">Filter:</label>
                     <select id="filterTipe" class="form-control form-control-sm">
                         <option value="barang" selected>Barang</option>
                         <option value="kategori">Kategori</option>
                     </select>
+                </div> --}}
+
+                {{-- Filter Bulan, Tahun, dan Tipe --}}
+                <div class="ml-auto d-flex align-items-center flex-wrap justify-content-end" style="gap: 0.5rem;">
+
+                    @php
+                    $currentMonth = date('m');
+                    $currentYear = date('Y');
+                    $years = range($currentYear - 5, $currentYear + 1);
+                    @endphp
+
+                    <div class="form-group mb-0 mr-2">
+                        <label for="filterBulan" class="mr-1 mb-0">Bulan:</label>
+                        <select id="filterBulan" class="form-control form-control-sm w-auto d-inline-block">
+                            <option value="">{{ DateTime::createFromFormat('!m',
+                                $currentMonth)->format('F') }}</option>
+                            @foreach(range(1, 12) as $month)
+                            <option value="{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}">
+                                {{ DateTime::createFromFormat('!m', $month)->format('F') }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-0 mr-2">
+                        <label for="filterTahun" class="mr-1 mb-0">Tahun:</label>
+                        <select id="filterTahun" class="form-control form-control-sm w-auto d-inline-block">
+                            <option value="">{{ $currentYear }}</option>
+                            @foreach($years as $year)
+                            <option value="{{ $year }}">{{ $year }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="form-group mb-0 mr-2">
+                        <label for="filterTipe" class="mr-1 mb-0">Tipe:</label>
+                        <select id="filterTipe" class="form-control form-control-sm w-auto d-inline-block">
+                            <option value="barang">Barang</option>
+                            <option value="kategori">Kategori</option>
+                        </select>
+                    </div>
                 </div>
+
             </div>
             <div class="card-body">
                 <div class="chart-container" style="position: relative; width: 100%; height: 300px;">
