@@ -3,51 +3,39 @@
 namespace App\Http\Controllers;
 
 use App\Models\LevelModel;
+use App\Modules\DataTables\LevelDataTable;
+use App\Modules\ViewData\LevelIndexViewData;
+use App\Services\Interfaces\LevelServiceInterface;
 use Illuminate\Http\Request;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
-use Yajra\DataTables\Facades\DataTables;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class LevelController extends Controller
 {
-    public function index()
+    protected $levelService;
+
+    public function __construct(LevelServiceInterface $levelService)
     {
-        $breadcrumbs = (object) [
-            'title' => 'Daftar Level',
-            'list' => ['Home', 'Level'],
-        ];
-
-        $page = (object) [
-            'title' => 'Daftar level dalam sistem',
-        ];
-
-        $activeMenu = 'level';
-
-        $levels = LevelModel::all();
-
-        return view('level.index', compact('breadcrumbs', 'page', 'activeMenu', 'levels'));
+        $this->levelService = $levelService;
     }
 
-    public function list(Request $request)
+    public function index()
     {
-        $levels = LevelModel::select('level_id', 'level_kode', 'level_nama');
+        $viewData = LevelIndexViewData::get();
+        $viewData['levels'] = $this->levelService->getAllLevels();
 
-        if ($request->level_id) {
-            $levels->where('level_id', $request->level_id);
-        }
+        return view('level.index', $viewData);
+    }
 
-        return DataTables::of($levels)
-            ->addIndexColumn()
-            ->addColumn('aksi', function ($level) {
-                $btn = '<button onclick="modalAction(\'' . url('/level/' . $level->level_id . '/edit_ajax') . '\')" class="btn btn-warning btn-sm">Edit</button> ';
-                $btn .= '<button onclick="modalAction(\'' . url('/level/' . $level->level_id . '/delete_ajax') . '\')" class="btn btn-danger btn-sm">Hapus</button> ';
+    public function list(Request $request, LevelDataTable $dataTable)
+    {
+        $filter = [
+            'level_id' => $request->level_id,
+        ];
 
-                return $btn;
-            })
-            ->rawColumns(['aksi'])
-            ->make(true);
+        return $dataTable->render($filter)->make(true);
     }
 
     public function create_ajax()
@@ -58,6 +46,7 @@ class LevelController extends Controller
     public function store_ajax(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
+
             $rules = [
                 'level_kode' => 'required|string|max:50|unique:m_level,level_kode',
                 'level_nama' => 'required|string|max:100|unique:m_level,level_nama',
@@ -73,23 +62,25 @@ class LevelController extends Controller
                 ]);
             }
 
-            LevelModel::create([
-                'level_kode' => $request->level_kode,
-                'level_nama' => $request->level_nama,
-            ]);
+            $result = $this->levelService->storeLevel($request->only(['level_kode', 'level_nama']));
 
-            return response()->json([
-                'status' => true,
-                'message' => 'Data level berhasil disimpan.',
-            ]);
+            return response()->json($result);
         }
 
         return redirect('/');
     }
 
+
     public function edit_ajax(string $id)
     {
-        $level = LevelModel::find($id);
+        $level = $this->levelService->getLevelById($id);
+
+        if (!$level) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data level tidak ditemukan',
+            ]);
+        }
 
         return view('level.edit_ajax', compact('level'));
     }
@@ -112,7 +103,8 @@ class LevelController extends Controller
                 ]);
             }
 
-            $level = LevelModel::find($id);
+            $level = $this->levelService->getLevelById($id);
+
             if ($level) {
                 $level->update([
                     'level_kode' => $request->level_kode,
@@ -136,7 +128,14 @@ class LevelController extends Controller
 
     public function confirm_ajax(string $id)
     {
-        $level = LevelModel::find($id);
+        $level = $this->levelService->getLevelById($id);
+
+        if (!$level) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data level tidak ditemukan',
+            ]);
+        }
 
         return view('level.confirm_ajax', compact('level'));
     }
@@ -144,7 +143,7 @@ class LevelController extends Controller
     public function delete_ajax(Request $request, string $id)
     {
         if ($request->ajax() || $request->wantsJson()) {
-            $level = LevelModel::find($id);
+            $level = $this->levelService->getLevelById($id);
             if ($level) {
                 try {
                     $level->delete();
@@ -153,7 +152,7 @@ class LevelController extends Controller
                         'status' => true,
                         'message' => 'Data level berhasil dihapus',
                     ]);
-                } catch (\Illuminate\Database\QueryException $e) {
+                } catch (QueryException $e) {
                     return response()->json([
                         'status' => false,
                         'message' => 'Data level gagal dihapus karena masih terkait dengan data lain',
@@ -178,101 +177,26 @@ class LevelController extends Controller
     public function import_ajax(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
-
-            // Validasi file: harus .xlsx, ukuran maksimal 2MB
             $rules = [
                 'file_level' => ['required', 'mimes:xlsx', 'max:2048'],
             ];
+
             $validator = Validator::make($request->all(), $rules);
             if ($validator->fails()) {
                 return response()->json([
-                    'status'   => false,
-                    'message'  => 'Validasi Gagal.' . "\n" . 'Mohon ikuti instruksi di template.',
+                    'status' => false,
+                    'message' => 'Validasi gagal.' . "\n" . 'Mohon ikuti instruksi di template.',
                     'msgField' => $validator->errors(),
                 ]);
             }
 
             try {
-                $file = $request->file('file_level');
-                $reader = IOFactory::createReader('Xlsx');
-                $reader->setReadDataOnly(true);
-                $spreadsheet = $reader->load($file->getRealPath());
-                $sheet = $spreadsheet->getActiveSheet();
-                $data = $sheet->toArray(null, true, true, true);
-
-                // Pastikan ada minimal 2 baris (header + minimal 1 data)
-                if (count($data) <= 1) {
-                    return response()->json([
-                        'status'  => false,
-                        'message' => 'Tidak ada data yang diimport.' . "\n" . 'Mohon ikuti instruksi di template.',
-                    ]);
-                }
-
-                // Validasi header file
-                $headerA = strtolower(str_replace(' ', '_', trim($data[1]['A'] ?? '')));
-                $headerB = strtolower(str_replace(' ', '_', trim($data[1]['B'] ?? '')));
-                $expectedHeader = ['level_kode', 'level_nama'];
-                if (!($headerA === $expectedHeader[0] && $headerB === $expectedHeader[1])) {
-                    return response()->json([
-                        'status'  => false,
-                        'message' => 'Header file Excel tidak sesuai. Pastikan kolom A dan B berturut-turut: ' .
-                            implode(', ', $expectedHeader) . '.' . "\n" . 'Mohon ikuti instruksi di template.',
-                    ]);
-                }
-
-                $insert = [];
-                // Looping data mulai dari baris kedua (baris pertama adalah header)
-                foreach ($data as $rowIndex => $rowValue) {
-                    if ($rowIndex == 1) {
-                        continue; // skip header
-                    }
-
-                    $levelKode = trim($rowValue['A'] ?? '');
-                    $levelNama = trim($rowValue['B'] ?? '');
-
-                    // Pastikan kolom wajib terisi
-                    if ($levelKode === '' || $levelNama === '') {
-                        continue;
-                    }
-
-                    // Cek duplikat: periksa apakah level dengan kode atau nama tersebut sudah ada
-                    $existing = LevelModel::where('level_kode', $levelKode)
-                        ->orWhere('level_nama', $levelNama)
-                        ->first();
-                    if ($existing) {
-                        return response()->json([
-                            'status'  => false,
-                            'message' => "Level dengan kode '{$levelKode}' atau nama '{$levelNama}' sudah ada." . "\n" . 'Mohon ikuti instruksi di template.',
-                        ]);
-                    }
-
-                    $insert[] = [
-                        'level_kode' => $levelKode,
-                        'level_nama' => $levelNama,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
-                }
-
-                if (count($insert) > 0) {
-                    // Masukkan data ke database
-                    LevelModel::insert($insert);
-
-                    return response()->json([
-                        'status'  => true,
-                        'message' => 'Data berhasil diimport',
-                    ]);
-                } else {
-                    return response()->json([
-                        'status'  => false,
-                        'message' => 'Tidak ada data valid yang diimport.' . "\n" . 'Mohon ikuti instruksi di template.',
-                    ]);
-                }
+                $result = $this->levelService->importFromExcel($request->file('file_level'));
+                return response()->json($result);
             } catch (\Exception $e) {
                 return response()->json([
-                    'status'  => false,
-                    'message' => 'Terjadi kesalahan saat memproses file: ' . $e->getMessage() .
-                        "\n" . 'Mohon ikuti instruksi di template.',
+                    'status' => false,
+                    'message' => 'Terjadi kesalahan saat memproses file: ' . $e->getMessage(),
                 ]);
             }
         }
@@ -280,77 +204,14 @@ class LevelController extends Controller
         return redirect('/');
     }
 
+
     public function export_excel()
     {
-        // Ambil data level yang akan diexport
-        $level = LevelModel::select('level_kode', 'level_nama')
-            ->orderBy('level_kode', 'ASC')
-            ->get();
-
-        // Buat objek Spreadsheet baru
-        $spreadsheet = new Spreadsheet();
-        $sheet = $spreadsheet->getActiveSheet();
-
-        // Set header kolom
-        $sheet->setCellValue('A1', 'No');
-        $sheet->setCellValue('B1', 'Kode Level');
-        $sheet->setCellValue('C1', 'Nama Level');
-
-        // Buat header bold
-        $sheet->getStyle('A1:C1')->getFont()->setBold(true);
-
-        // Isi data
-        $no = 1;
-        $row = 2;
-        foreach ($level as $item) {
-            $sheet->setCellValue('A' . $row, $no);
-            $sheet->setCellValue('B' . $row, $item->level_kode);
-            $sheet->setCellValue('C' . $row, $item->level_nama);
-
-            $no++;
-            $row++;
-        }
-
-        // Set auto size untuk kolom A sampai C
-        foreach (range('A', 'C') as $columnID) {
-            $sheet->getColumnDimension($columnID)->setAutoSize(true);
-        }
-
-        // Set judul sheet
-        $sheet->setTitle('Data Level');
-
-        // Buat writer untuk file Excel
-        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $filename = 'Data Level ' . date('Y-m-d H:i:s') . '.xlsx';
-
-        // Set header untuk file download
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Cache-Control: max-age=0');
-        header('Cache-Control: max-age=1');
-        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-        header('Cache-Control: cache, must-revalidate');
-        header('Pragma: public');
-
-        // Output file ke browser
-        $writer->save('php://output');
-        exit;
+        return $this->levelService->exportToExcel();
     }
 
     public function export_pdf()
     {
-        // Ambil data level yang akan diexport
-        $level = LevelModel::select('level_kode', 'level_nama')
-            ->orderBy('level_kode', 'ASC')
-            ->get();
-
-        // Muat view export PDF (sesuaikan nama file view jika diperlukan)
-        $pdf = Pdf::loadView('level.export_pdf', ['level' => $level]);
-
-        $pdf->setPaper('a4', 'portrait');       // Set ukuran kertas dan orientasi
-        $pdf->setOption("isRemoteEnabled", true); // Aktifkan remote jika ada gambar dari URL
-
-        return $pdf->stream('Data Level ' . date('Y-m-d H:i:s') . '.pdf');
+        return $this->levelService->exportToPDF();
     }
 }

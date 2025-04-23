@@ -81,14 +81,14 @@ PHP;
 
 namespace App\Repositories\Eloquent;
 
-use App\Models\{$modelName};
-use App\Repositories\Interfaces\{$interfaceName};
+use App\Models\\{$modelName}Model;
+use App\Repositories\Interfaces\\{$interfaceName};
 
 class {$className} implements {$interfaceName}
 {
     protected \${$modelVar};
 
-    public function __construct({$modelName} \${$modelVar})
+    public function __construct({$modelName}Model \${$modelVar})
     {
         \$this->{$modelVar} = \${$modelVar};
     }
