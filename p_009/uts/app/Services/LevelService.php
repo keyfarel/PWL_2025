@@ -5,9 +5,12 @@ namespace App\Services;
 use App\Repositories\Interfaces\LevelRepositoryInterface;
 use App\Services\Interfaces\LevelServiceInterface;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Log;
+use InvalidArgumentException;
+use JetBrains\PhpStorm\NoReturn;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
-
+use RuntimeException;
 
 class LevelService implements LevelServiceInterface
 {
@@ -20,45 +23,100 @@ class LevelService implements LevelServiceInterface
 
     public function getAllLevels()
     {
-        return $this->levelRepository->all();
+        try {
+            return $this->levelRepository->all();
+        } catch (\Exception $e) {
+            Log::error('Gagal mengambil semua level', ['error' => $e->getMessage()]);
+            throw new RuntimeException('Level data could not be retrieved.');
+        }
     }
 
     public function getListLevels(array $filter = [])
     {
-        return $this->levelRepository->getList($filter);
+        try {
+            return $this->levelRepository->getList($filter);
+        } catch (\Exception $e) {
+            Log::error('Gagal mengambil daftar level', ['error' => $e->getMessage()]);
+            throw new RuntimeException('List level data could not be retrieved.');
+        }
     }
 
     public function getLevelById(string $id)
     {
-        return $this->levelRepository->find($id);
+        // Validasi bahwa ID adalah integer
+        if (!is_numeric($id) || (int) $id != $id) {
+            throw new InvalidArgumentException('ID must be an integer.');
+        }
+
+        try {
+            return $this->levelRepository->find($id);
+        } catch (\Exception $e) {
+            Log::error("Gagal mengambil level dengan ID: {$id}", ['error' => $e->getMessage()]);
+            throw new RuntimeException('Level data could not be retrieved.');
+        }
     }
 
-    public function getLevelBykodeOrNama(string $kode, string $nama)
+    public function getLevelByKodeOrNama(string $kode, string $nama)
     {
-        return $this->levelRepository->findByKodeOrNama($kode, $nama);
+        try {
+            return $this->levelRepository->findByKodeOrNama($kode, $nama);
+        } catch (\Exception $e) {
+            Log::error(
+                "Gagal mengambil level dengan kode: {$kode} atau nama: {$nama}",
+                ['error' => $e->getMessage()]
+            );
+            throw new RuntimeException('Level data could not be retrieved.');
+        }
     }
 
     public function storeLevel(array $data): array
     {
-        // Proses menyimpan data lewat repository
-        $this->levelRepository->create([
-            'level_kode' => $data['level_kode'],
-            'level_nama' => $data['level_nama'],
-        ]);
+        try {
+            $this->levelRepository->create([
+                'level_kode' => $data['level_kode'],
+                'level_nama' => $data['level_nama'],
+            ]);
 
-        return [
-            'status' => true,
-            'message' => 'Data level berhasil disimpan.',
-        ];
+            return [
+                'status' => true,
+                'message' => 'Data level berhasil disimpan.',
+            ];
+        } catch (\Exception $e) {
+            Log::error('Gagal menyimpan data level', [
+                'data' => $data,
+                'error' => $e->getMessage(),
+            ]);
+
+            return [
+                'status' => false,
+                'message' => 'Gagal menyimpan data level.',
+            ];
+        }
     }
 
     public function importFromExcel($file): array
     {
-        $reader = IOFactory::createReader('Xlsx');
-        $reader->setReadDataOnly(true);
-        $spreadsheet = $reader->load($file->getRealPath());
-        $sheet = $spreadsheet->getActiveSheet();
-        $data = $sheet->toArray(null, true, true, true);
+        // Validasi dasar file
+        if (!$file->isValid() || $file->getClientOriginalExtension() !== 'xlsx') {
+            return [
+                'status' => false,
+                'message' => 'File tidak valid atau bukan file Excel (.xlsx).',
+            ];
+        }
+
+        try {
+            $reader = IOFactory::createReader('Xlsx');
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+            $data = $sheet->toArray(null, true, true, true);
+        } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $e) {
+            Log::error('Gagal membaca file Excel', ['error' => $e->getMessage()]);
+            return [
+                'status' => false,
+                'message' => 'Gagal membaca file Excel. Pastikan file valid.',
+            ];
+        }
 
         if (count($data) <= 1) {
             return [
@@ -67,6 +125,7 @@ class LevelService implements LevelServiceInterface
             ];
         }
 
+        // Validasi header
         $headerA = strtolower(str_replace(' ', '_', trim($data[1]['A'] ?? '')));
         $headerB = strtolower(str_replace(' ', '_', trim($data[1]['B'] ?? '')));
         $expectedHeader = ['level_kode', 'level_nama'];
@@ -106,11 +165,19 @@ class LevelService implements LevelServiceInterface
         }
 
         if (count($insert) > 0) {
-            $this->levelRepository->insertMany($insert); // kamu bisa buat fungsi insertBulk di repo
-            return [
-                'status' => true,
-                'message' => 'Data berhasil diimport',
-            ];
+            try {
+                $this->levelRepository->insertMany($insert);
+                return [
+                    'status' => true,
+                    'message' => 'Data berhasil diimport',
+                ];
+            } catch (\Exception $e) {
+                Log::error('Gagal mengimport data level', ['error' => $e->getMessage()]);
+                return [
+                    'status' => false,
+                    'message' => 'Terjadi kesalahan saat menyimpan data ke database.',
+                ];
+            }
         }
 
         return [
@@ -119,7 +186,7 @@ class LevelService implements LevelServiceInterface
         ];
     }
 
-    public function exportToExcel()
+    #[NoReturn] public function exportToExcel(): void
     {
         $level = $this->levelRepository->getAllLevelsOrderedByKode();
 
@@ -152,7 +219,7 @@ class LevelService implements LevelServiceInterface
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         $filename = 'Data Level ' . date('Y-m-d H:i:s') . '.xlsx';
 
-        // Set header 
+        // Set header
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
@@ -165,7 +232,7 @@ class LevelService implements LevelServiceInterface
         exit;
     }
 
-    public function exportToPDF()
+    public function exportToPDF(): \Illuminate\Http\Response
     {
         $data = $this->levelRepository->getAllLevelsOrderedByKode();
 
