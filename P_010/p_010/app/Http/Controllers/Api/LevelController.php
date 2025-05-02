@@ -15,20 +15,47 @@ class LevelController extends Controller
         return LevelModel::all();
     }
 
-    public function store(Request $request)
+    public function store(Request $request): \Illuminate\Http\JsonResponse
     {
-        $level = LevelModel::create($request->all());
-        Log::info('Level baru dibuat.', ['data' => $level]);
-        return response()->json($level, 201);
+        try {
+            $validated = $request->validate([
+                'level_kode' => 'required|string|max:10|unique:m_level,level_kode',
+                'level_nama' => 'required|string|max:100',
+            ]);
+
+            $level = LevelModel::create($validated);
+
+            Log::info('Level baru berhasil dibuat.', ['data' => $level]);
+
+            return response()->json([
+                'message' => 'Level berhasil dibuat.',
+                'data' => $level
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Jika validasi gagal
+            return response()->json([
+                'error' => 'Validasi gagal',
+                'details' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            // Error lainnya (DB error, logic error, dll)
+            Log::error('Gagal membuat level.', ['error' => $e->getMessage()]);
+            return response()->json([
+                'error' => 'Terjadi kesalahan saat membuat level.',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
-    public function show(LevelModel $level)
+    public function show(LevelModel $level): \Illuminate\Http\JsonResponse
     {
         Log::info('Menampilkan data level.', ['id' => $level->id]);
         return response()->json($level);
     }
 
-    public function update(Request $request, LevelModel $level)
+    public function update(Request $request, LevelModel $level): \Illuminate\Http\JsonResponse
     {
         $oldData = $level->toArray();
         $level->update($request->all());
@@ -40,7 +67,7 @@ class LevelController extends Controller
         return response()->json($level);
     }
 
-    public function destroy(LevelModel $level)
+    public function destroy(LevelModel $level): \Illuminate\Http\JsonResponse
     {
         $id = $level->id;
         $level->delete();
