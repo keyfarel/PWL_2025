@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\LevelController;
 use App\Http\Controllers\Api\BarangController;
 use App\Http\Controllers\Api\KategoriController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\PenjualanController;
 
 Route::post('/register', App\Http\Controllers\Api\RegisterController::class)->name('api.register');
 Route::post('/login', App\Http\Controllers\Api\LoginController::class)->name('api.login');
@@ -19,6 +20,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('barang', BarangController::class);
     Route::apiResource('kategori', KategoriController::class);
     Route::apiResource('user', UserController::class);
+    Route::apiResource('penjualan', PenjualanController::class);
 });
 
 Route::middleware('auth:api')->get('/auth_user', function (Request $request) {

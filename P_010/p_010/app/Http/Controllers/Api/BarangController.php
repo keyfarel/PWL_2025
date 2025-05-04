@@ -5,6 +5,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BarangModel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class BarangController extends Controller
 {
@@ -23,7 +25,19 @@ class BarangController extends Controller
                 'barang_nama'  => 'required|string|max:100',
                 'harga_beli'   => 'required|numeric|min:0',
                 'harga_jual'   => 'required|numeric|min:0',
+                'image'        => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             ]);
+
+            // Handle file upload jika ada
+            if ($request->hasFile('image') && $request->file('image')->isValid()) {
+                $image = $request->file('image');
+                $filename = $image->hashName();
+
+                $folder = 'images/barang/' . $validated['barang_kode'];
+                Storage::disk('public')->putFileAs($folder, $image, $filename);
+
+                $validated['image'] = $filename;
+            }
 
             $barang = BarangModel::create($validated);
 

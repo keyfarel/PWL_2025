@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,7 +22,18 @@ class PenjualanModel extends Model
         'penjualan_kode',
         'penjualan_tanggal',
         'total_harga',
+        'image',
     ];
+
+    public function image(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value
+                ? asset("storage/images/penjualan/{$this->penjualan_kode}/{$value}")
+                : null,
+            set: fn($value) => $value,
+        );
+    }
 
     public function user()
     {
