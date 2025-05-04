@@ -49,7 +49,6 @@ class BarangController extends Controller
         }
     }
 
-
     public function show(BarangModel $barang)
     {
         Log::info('Menampilkan data barang.', ['id' => $barang->barang_id]);

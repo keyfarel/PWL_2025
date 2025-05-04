@@ -53,7 +53,7 @@
                 aria-haspopup="true" aria-expanded="false">
                 @if(Auth::user()->photo)
                 <!-- Jika user punya foto -->
-                <img src="{{ asset('storage/images/profiles/' . Auth::user()->photo) }}" class="rounded-circle"
+                <img src="{{ Auth::user()->photo }}" class="rounded-circle"
                     alt="User Image" style="width: 35px; height: 35px; object-fit: cover;">
                 @else
                 <!-- Jika user belum punya foto -->

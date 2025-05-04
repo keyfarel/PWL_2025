@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Tymon\JWTAuth\Contracts\JWTSubject;
@@ -11,16 +12,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class UserModel extends Authenticatable implements JWTSubject
 {
     use HasFactory;
-
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    public function getJWTCustomClaims(): array
-    {
-      return [];
-    }
 
     protected $table = 'm_user';
     protected $primaryKey = 'user_id';
@@ -35,25 +26,21 @@ class UserModel extends Authenticatable implements JWTSubject
         'username',
         'nama',
         'password',
+        'photo',
     ];
 
     protected $hidden = [
         'password',
     ];
 
-    public function getRole(): string
+    public function getJWTIdentifier()
     {
-        return $this->level->level_kode;
+        return $this->getKey();
     }
 
-    public function getRoleName(): string
+    public function getJWTCustomClaims(): array
     {
-        return $this->level->level_nama;
-    }
-
-    public function hasRole($role): bool
-    {
-        return $this->level->level_kode == $role;
+        return [];
     }
 
     public function level(): BelongsTo
@@ -69,5 +56,28 @@ class UserModel extends Authenticatable implements JWTSubject
     public function penjualan()
     {
         return $this->hasMany(PenjualanModel::class, 'user_id', 'user_id');
+    }
+
+    public function photo(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => $value ? asset('storage/images/profiles/' . $value) : null,
+            set: fn($value) => $value,
+        );
+    }
+
+    public function getRole(): string
+    {
+        return $this->level->level_kode;
+    }
+
+    public function getRoleName(): string
+    {
+        return $this->level->level_nama;
+    }
+
+    public function hasRole($role): bool
+    {
+        return $this->level->level_kode == $role;
     }
 }

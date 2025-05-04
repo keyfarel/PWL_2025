@@ -16,28 +16,35 @@ class RegisterController extends Controller
             'nama' => 'required',
             'password' => 'required|min:6|confirmed',
             'level_id' => 'required',
-            ]);
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-            if ($validator->fails()) {
-                return response()->json($validator->errors(), 422);
-            }
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), 422);
+        }
 
-            $user = UserModel::create([
-                'username' => $request->username,
-                'nama' => $request->nama,
-                'password' => bcrypt($request->password),
-                'level_id' => $request->level_id,
-            ]);
+        $photo = $request->file('photo');
+        $filename = uniqid() . '_' . time() . '.' . $photo->getClientOriginalExtension();
+        $photo->storeAs('images/profiles', $filename, 'public');
 
-            if ($user) {
-                return response()->json([
-                    'status' => true,
-                    'user' => $user,
-                ], 201);
-            }
+        // Simpan user
+        $user = UserModel::create([
+            'username' => $request->username,
+            'nama' => $request->nama,
+            'password' => bcrypt($request->password),
+            'level_id' => $request->level_id,
+            'photo' => $filename,
+        ]);
 
+        if ($user) {
             return response()->json([
-                'success' => false,
-            ], 409);
+                'status' => true,
+                'user' => $user,
+            ], 201);
+        }
+
+        return response()->json([
+            'success' => false,
+        ], 409);
     }
 }

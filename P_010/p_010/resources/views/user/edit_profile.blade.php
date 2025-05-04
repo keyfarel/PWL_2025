@@ -25,7 +25,7 @@
                 <div class="col-12 col-md-10 text-center text-md-left">
                     <div class="mb-2">
                         @if($user->photo)
-                        <img id="photo-preview" src="{{ asset('storage/images/profiles/' . $user->photo) }}"
+                        <img id="photo-preview" src="{{  $user->photo }}"
                             alt="Foto Profil" class="img-fluid rounded-circle border border-primary shadow-sm"
                             style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;">
                         @else
